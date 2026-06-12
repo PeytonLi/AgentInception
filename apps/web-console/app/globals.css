@@ -1,0 +1,72 @@
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+
+@theme {
+  --color-void: #07090d;
+  --color-panel: #0d1118;
+  --color-panel-2: #111722;
+  --color-edge: #1c2533;
+  --color-ghost: #38e8c8;
+  --color-ghost-dim: #1a6f63;
+  --color-baseline: #ff5470;
+  --color-crimson: #ff1f4b;
+  --color-amber: #ffb454;
+  --color-ink: #e6edf3;
+  --color-ink-dim: #8b98a9;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+}
+
+html,
+body {
+  background: var(--color-void);
+  color: var(--color-ink);
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle scanline / grid backdrop for the "OS console" feel. */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(56, 232, 200, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 232, 200, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+@keyframes ghost-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(56, 232, 200, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 18px 2px rgba(56, 232, 200, 0.55);
+  }
+}
+.layer-lit {
+  animation: ghost-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes crimson-flash {
+  0% {
+    box-shadow: inset 0 0 0 3px rgba(255, 31, 75, 0.95);
+    opacity: 1;
+  }
+  100% {
+    box-shadow: inset 0 0 0 3px rgba(255, 31, 75, 0);
+    opacity: 0;
+  }
+}
+.crimson-flash {
+  animation: crimson-flash 1.5s ease-out forwards;
+}
+
+.log-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.log-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-edge);
+  border-radius: 4px;
+}
