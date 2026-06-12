@@ -55,6 +55,8 @@ entirely "run the thing that was built, fix what breaks, replace the fake banks.
 6. Merge C1, get GPU integration tests green, write `RUNBOOK.md`, rehearse, record (P5).
 7. (Rahul) Build a steering-efficacy harness (R2) and refresh demo fixtures + the
    token-honesty dataset (R3).
+8. (Peyton) Run the final wiring verification against the deployed system from
+   cold — prove every contract, pipe, fallback, and crash path is wired (W1).
 
 **Definition of phase done:** on a cold EC2 box, `scripts/run_demo.sh` brings the
 stack up; an `--mode=mi` run on live Hacker News completes the locked task with
@@ -72,8 +74,8 @@ Rahul owns the banks and demo data (Phase-1 tracks B1-B2) - smaller surface, but
 
 | Owner | Agents | Rough effort |
 |---|---|---|
-| **Peyton** | P1, P2, P3, P4, P5 | **~65%** |
-| **Rahul** | R1, R2, R3 | **~35%** |
+| **Peyton** | P1, P2, P3, P4, P5, W1 | **~68%** |
+| **Rahul** | R1, R2, R3 | **~32%** |
 
 | Agent | Spec | Builds | Worktree branch |
 |---|---|---|---|
@@ -82,6 +84,7 @@ Rahul owns the banks and demo data (Phase-1 tracks B1-B2) - smaller surface, but
 | P3 | `peyton/P3-e2e-runner.md` | Live-HN end-to-end loop both modes, frames, ClickHouse steps | `phase2/p3-e2e-runner` |
 | P4 | `peyton/P4-console-live.md` | Console against real WS, polish, savings chart, screenshot | `phase2/p4-console-live` |
 | P5 | `peyton/P5-integration-demo.md` | Merge C1, GPU tests green, run_demo, RUNBOOK, rehearsal, recording | `phase2/p5-integration-demo` |
+| W1 | `W1-final-wiring.md` | Cold-box contract audit, data-flow trace, fallback, crash recovery, final gate | `phase2/w1-final-wiring` |
 | R1 | `rahul/R1-real-banks.md` | Compile real banks for the 3 page types, replace synthetic, re-upload | `phase2/r1-real-banks` |
 | R2 | `rahul/R2-bank-efficacy.md` | Steering-efficacy harness, summary tuning, quality report | `phase2/r2-bank-efficacy` |
 | R3 | `rahul/R3-demo-data.md` | Fresh DOM fixtures, popup page polish, token-honesty dataset | `phase2/r3-demo-data` |
@@ -102,9 +105,12 @@ Rahul owns the banks and demo data (Phase-1 tracks B1-B2) - smaller surface, but
         P3  Live-HN e2e both modes   <---- R3 fresh fixtures/data
                    |
         P5  Integration + demo       <---- P4 console (parallel)
+                   |
+        W1  Final wiring gate  (cold-box contract audit + crash recovery)
 
   R2 (efficacy harness) runs in parallel with R1 and feeds bank-quality
   decisions back into R1. P4 is independent until P5 (mock -> real swap).
+  W1 runs last and is the final gate - nothing merges to main after it.
 ```
 
 **Sync points (sprint clock):**
@@ -120,6 +126,8 @@ Rahul owns the banks and demo data (Phase-1 tracks B1-B2) - smaller surface, but
   engine; `agent_steps` rows written; frames flowing.
 - **H+16 - Demo locked.** P5 has the integration suite green on GPU, `RUNBOOK.md`
   written, and a recorded backup run.
+- **H+18 - Final wiring green.** W1 verifies every contract point, data-flow pipe,
+  and crash-recovery path on the cold box. The phase is done.
 
 ---
 
@@ -179,5 +187,6 @@ cd ../../.. && git worktree remove .claude/worktrees/phase2-p1
 - P1, P2, R1, R2 (GPU / model internals): a PyTorch-patterns skill if available;
   lean on `diagnose` for CUDA / shape / dtype bugs.
 - P4: `frontend-design`.  P5: `diagnose`, `review-architecture`.
+  W1: `diagnose`, `review-architecture`.
 - R1/R3 Haiku calls: Anthropic API docs (`claude-haiku-4-5-20251001`).
 - Summarizing a long session for the next agent: `handoff`.
