@@ -79,15 +79,17 @@ export function TokenComparator({
         <div className="flex items-baseline gap-1.5">
           <span
             data-testid="kv-savings"
-            className="text-lg font-bold leading-none text-ghost"
+            className="text-2xl font-bold leading-none text-ghost tabular-nums"
           >
             {animatedRatio.toFixed(1)}×
           </span>
-          <span className="text-[9px] tracking-widest text-ink-dim">SAVED</span>
+          <span className="text-[10px] tracking-widest text-ink-dim">
+            SAVED
+          </span>
         </div>
       </div>
 
-      <div className="flex gap-3 px-3 pt-2 text-[10px]">
+      <div className="flex gap-4 px-3 pt-2 text-[11px]">
         <Metric
           label="STANDARD"
           value={fmt(cumBaseline)}
@@ -116,7 +118,7 @@ export function TokenComparator({
             <XAxis
               dataKey="step"
               stroke="#8b98a9"
-              tick={{ fontSize: 10 }}
+              tick={{ fontSize: 11 }}
               label={{
                 value: "step",
                 position: "insideBottomRight",
@@ -126,9 +128,9 @@ export function TokenComparator({
             />
             <YAxis
               stroke="#8b98a9"
-              tick={{ fontSize: 10 }}
+              tick={{ fontSize: 11 }}
               tickFormatter={fmt}
-              width={42}
+              width={46}
             />
             <Tooltip
               contentStyle={{
@@ -139,7 +141,7 @@ export function TokenComparator({
               labelStyle={{ color: "#8b98a9" }}
               formatter={(v: number) => v.toLocaleString()}
             />
-            <Legend wrapperStyle={{ fontSize: 10 }} />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
             <Area
               type="monotone"
               dataKey="Standard prompting"
@@ -153,7 +155,7 @@ export function TokenComparator({
               type="monotone"
               dataKey="GhostBrowser MI"
               stroke="#38e8c8"
-              strokeWidth={2.5}
+              strokeWidth={3}
               dot={false}
               isAnimationActive
             />

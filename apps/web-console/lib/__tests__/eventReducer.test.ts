@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  DashboardState,
-  eventReducer,
-  initialState,
-} from "../eventReducer";
+import { DashboardState, eventReducer, initialState } from "../eventReducer";
 import { GhostEvent } from "../events";
 
 function apply(state: DashboardState, event: GhostEvent): DashboardState {
@@ -103,6 +99,8 @@ describe("eventReducer", () => {
     expect(s.cumBaseline).toBe(14200);
     expect(s.kvSavingsRatio).toBe(67.0);
     expect(s.lastStep).toBe(1);
+    expect(s.domTokenCount).toBe(14200);
+    expect(s.visibleTokens).toBe(212);
     expect(s.metricHistory).toHaveLength(1);
 
     s = apply(s, {

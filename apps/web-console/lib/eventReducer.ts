@@ -43,6 +43,10 @@ export interface DashboardState {
   cumBaseline: number;
   kvSavingsRatio: number;
   lastStep: number;
+  /** Latest step's DOM token count the bank replaced (token_metrics.baseline_tokens). */
+  domTokenCount: number;
+  /** Latest step's prompt tokens actually sent (token_metrics.visible_tokens). */
+  visibleTokens: number;
   metricHistory: MetricPoint[];
 
   // Logs & actions
@@ -70,6 +74,8 @@ export const initialState: DashboardState = {
   cumBaseline: 0,
   kvSavingsRatio: 0,
   lastStep: 0,
+  domTokenCount: 0,
+  visibleTokens: 0,
   metricHistory: [],
   logs: [],
   actions: [],
@@ -140,6 +146,8 @@ function applyEvent(state: DashboardState, event: GhostEvent): DashboardState {
         cumBaseline: event.cum_baseline,
         kvSavingsRatio: event.kv_savings_ratio,
         lastStep: event.step,
+        domTokenCount: event.baseline_tokens,
+        visibleTokens: event.visible_tokens,
         metricHistory: history,
       };
     }
