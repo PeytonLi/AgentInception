@@ -28,5 +28,5 @@ packages = ["src/inference_engine"]
 testpaths = ["tests"]
 filterwarnings = ["ignore::DeprecationWarning:transformers.*"]
 markers = [
-    "gpu: real-model tests that require a CUDA GPU (skipped off-GPU; run with -m gpu on the box)",
+    "gpu: real Llama-3.1-8B + real-bank validation; auto-skipped without CUDA (P2)",
 ]
