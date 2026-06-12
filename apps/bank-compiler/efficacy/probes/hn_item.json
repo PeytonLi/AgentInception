@@ -1,0 +1,30 @@
+[
+  {
+    "prompt": "Where is the story score located on this page? What CSS selector targets it?",
+    "description": "score location"
+  },
+  {
+    "prompt": "How do I identify the top commenters on this page? What elements contain usernames?",
+    "description": "top commenters selector"
+  },
+  {
+    "prompt": "What is the structure of each comment row? What CSS classes identify comments?",
+    "description": "comment row structure"
+  },
+  {
+    "prompt": "Where is the comment body text located within each comment?",
+    "description": "commtext location"
+  },
+  {
+    "prompt": "How are comments nested or indented on this page?",
+    "description": "comment threading"
+  },
+  {
+    "prompt": "What information is in the story header at the top of the page?",
+    "description": "story header content"
+  },
+  {
+    "prompt": "How do I extract the list of unique usernames who commented, in order?",
+    "description": "username extraction"
+  }
+]

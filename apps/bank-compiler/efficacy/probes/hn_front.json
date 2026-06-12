@@ -1,0 +1,30 @@
+[
+  {
+    "prompt": "What CSS selector would I use to find the comments link for a story on this page?",
+    "description": "comments-link selector"
+  },
+  {
+    "prompt": "How do I navigate to the next page of stories? What should I click?",
+    "description": "More link / pagination"
+  },
+  {
+    "prompt": "Where is the score for each story located in the DOM? What CSS selector targets it?",
+    "description": "score span selector"
+  },
+  {
+    "prompt": "What is the ordering of stories on this page? Which is highest-ranked?",
+    "description": "story ordering"
+  },
+  {
+    "prompt": "What navigation links are available in the top bar?",
+    "description": "top nav links"
+  },
+  {
+    "prompt": "How do I open the discussion page for a specific story? Should I click the title or the comments link?",
+    "description": "story vs comments navigation"
+  },
+  {
+    "prompt": "What CSS class identifies each story row in the listing?",
+    "description": "story row class"
+  }
+]
