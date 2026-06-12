@@ -238,13 +238,17 @@ class AgentRunner:
             raise ActionExecutionError(f"non-executable action: {action.type}")
 
     async def _click_with_retry(self, selector: str) -> None:
+        # Let the page finish loading before we try to interact with it.
+        await self.page.settle()
         try:
             await self.page.click(selector, timeout_ms=5000)
         except Exception as first:
             logger.warning("click %s failed (%s); retrying once", selector, first)
+            await self.page.settle()
             try:
                 await self.page.click(selector, timeout_ms=5000)
             except Exception as second:
+                url = await self.page.url()
                 raise ActionExecutionError(
-                    f"click {selector!r} failed twice: {second}"
+                    f"click {selector!r} failed twice at {url}: {second}"
                 ) from second
