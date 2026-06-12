@@ -17,6 +17,31 @@ export function ViewportPanel({
   const flashKey = useRef(0);
   const seenSeq = useRef(0);
 
+  // Real frames arrive ~300 ms (and can burst on reconnect). Decouple the
+  // painted frame from the prop with a single rAF: only the newest frame is
+  // ever committed to the <img>, so stale frames are dropped and we never
+  // queue work faster than the display can paint it (no lag/leak over long runs).
+  const [paintedFrame, setPaintedFrame] = useState<string | null>(frame);
+  const pendingFrame = useRef<string | null>(frame);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    pendingFrame.current = frame;
+    if (rafRef.current !== null) return; // a paint is already scheduled
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      setPaintedFrame((prev) =>
+        prev === pendingFrame.current ? prev : pendingFrame.current,
+      );
+    });
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
+  }, [frame]);
+
   useEffect(() => {
     if (popupFlashSeq > seenSeq.current) {
       seenSeq.current = popupFlashSeq;
@@ -30,10 +55,10 @@ export function ViewportPanel({
   return (
     <Panel title="LIVE VIEWPORT MIRROR" accent={activePageKey}>
       <div className="relative h-full w-full overflow-hidden rounded-sm bg-black">
-        {frame ? (
+        {paintedFrame ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={`data:image/jpeg;base64,${frame}`}
+            src={`data:image/jpeg;base64,${paintedFrame}`}
             alt="agent viewport"
             className="h-full w-full object-contain"
           />
@@ -78,7 +103,13 @@ function Panel({
   );
 }
 
-function PanelHeader({ title, right }: { title: string; right: string | null }) {
+function PanelHeader({
+  title,
+  right,
+}: {
+  title: string;
+  right: string | null;
+}) {
   return (
     <div className="flex items-center justify-between border-b border-edge px-3 py-1.5">
       <span className="text-[10px] font-bold tracking-[0.25em] text-ink-dim">
