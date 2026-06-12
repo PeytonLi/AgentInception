@@ -237,14 +237,22 @@ class AgentRunner:
         else:  # pragma: no cover - terminal actions never reach here
             raise ActionExecutionError(f"non-executable action: {action.type}")
 
+    async def _settle(self) -> None:
+        """Wait for the page to settle, supporting both settle() and _settle() APIs."""
+        for name in ("settle", "_settle"):
+            fn = getattr(self.page, name, None)
+            if fn is not None:
+                await fn()
+                return
+
     async def _click_with_retry(self, selector: str) -> None:
         # Let the page finish loading before we try to interact with it.
-        await self.page.settle()
+        await self._settle()
         try:
             await self.page.click(selector, timeout_ms=5000)
         except Exception as first:
             logger.warning("click %s failed (%s); retrying once", selector, first)
-            await self.page.settle()
+            await self._settle()
             try:
                 await self.page.click(selector, timeout_ms=5000)
             except Exception as second:
