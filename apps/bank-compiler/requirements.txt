@@ -1,0 +1,9 @@
+# Bank compiler (B1): DOM -> Haiku summary -> Llama forward pass -> pre-RoPE banks.
+transformers==4.46.*
+torch
+accelerate
+anthropic
+playwright
+beautifulsoup4
+numpy>=1.24
+-e ../../packages/shared-py

@@ -14,8 +14,8 @@ from urllib.parse import urlparse
 
 import numpy as np
 
-from . import bank_io
-from .constants import HEAD_DIM, NUM_KV_HEADS
+from .bank_io import from_bytes as _from_bytes
+from .bank_io import to_bytes as _to_bytes
 
 DEFAULT_URL = "http://localhost:8123"
 DATABASE = "ghostbrowser"
@@ -63,8 +63,8 @@ def insert_bank(
                 domain,
                 int(layer),
                 int(num_slots),
-                bank_io.to_bytes(k_arr),
-                bank_io.to_bytes(v_arr),
+                _to_bytes(k_arr),
+                _to_bytes(v_arr),
                 dom_structural_hash,
             ]
         )
@@ -97,8 +97,8 @@ def load_all_banks(
     )
     out: dict[str, dict[int, tuple[np.ndarray, np.ndarray]]] = {}
     for page_key, layer_id, num_slots, k_bytes, v_bytes in result.result_rows:
-        k_arr = bank_io.from_bytes(bytes(k_bytes), int(num_slots))
-        v_arr = bank_io.from_bytes(bytes(v_bytes), int(num_slots))
+        k_arr = _from_bytes(bytes(k_bytes), int(num_slots))
+        v_arr = _from_bytes(bytes(v_bytes), int(num_slots))
         out.setdefault(page_key, {})[int(layer_id)] = (k_arr, v_arr)
     return out
 

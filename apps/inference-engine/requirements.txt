@@ -1,0 +1,13 @@
+# Inference engine (A1). Custom MI attention is version-sensitive — keep the pin.
+transformers==4.46.*
+torch
+accelerate
+fastapi
+uvicorn[standard]
+websockets
+pydantic>=2
+numpy>=1.24
+clickhouse-connect>=0.7
+httpx
+# Shared contract code (page_key, bank_io, storage). Editable from the monorepo.
+-e ../../packages/shared-py

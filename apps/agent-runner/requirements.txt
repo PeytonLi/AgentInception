@@ -1,0 +1,8 @@
+# Agent runner (A3): Playwright loop, baseline + MI modes, metrics.
+playwright
+httpx
+websockets
+# Llama tokenizer is used to compute dom_token_count in both modes (CONTRACTS §6).
+transformers==4.46.*
+numpy>=1.24
+-e ../../packages/shared-py
