@@ -31,7 +31,8 @@
           "v": "hn_front__L20__v.bin"
         }
       },
-      "compiled_at": "2026-06-12T20:57:43Z"
+      "compiled_at": "2026-06-12T22:30:45Z",
+      "synthetic": true
     },
     {
       "page_key": "hn:item",
@@ -57,7 +58,8 @@
           "v": "hn_item__L20__v.bin"
         }
       },
-      "compiled_at": "2026-06-12T20:57:43Z"
+      "compiled_at": "2026-06-12T22:30:45Z",
+      "synthetic": true
     },
     {
       "page_key": "popup:demo",
@@ -83,7 +85,8 @@
           "v": "popup_demo__L20__v.bin"
         }
       },
-      "compiled_at": "2026-06-12T20:57:43Z"
+      "compiled_at": "2026-06-12T22:30:45Z",
+      "synthetic": true
     }
   ]
 }

@@ -15,6 +15,7 @@ from ghost_shared import bank_io
 
 from .dom_extract import domain_of, load_dom
 from .encoder import encode_summary, load_model_and_tokenizer
+from .provenance import tag_synthetic
 from .summarizer import summarize_dom
 
 
@@ -87,4 +88,12 @@ def run_compile(opts: CompileOptions) -> dict[str, Any]:
             "summary_text_path": str(summary_path.as_posix()),
         },
     )
+
+    # 5. Tag this bank as REAL (not synthetic noise) in the on-disk manifest.
+    #    `save_bank` deliberately doesn't know about provenance — the marker
+    #    lives in the manifest as an additive key so existing readers ignore
+    #    it. The synthetic fallback in `scripts/build_demo_banks.py` sets the
+    #    opposite (`"synthetic": true`).
+    tag_synthetic(out_dir, opts.page_key, synthetic=False)
+    entry["synthetic"] = False
     return entry

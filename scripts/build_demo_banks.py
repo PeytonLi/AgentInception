@@ -1,16 +1,42 @@
 #!/usr/bin/env python
-"""Produce the 3 demo banks (hn:front, hn:item, popup:demo) into banks/.
+# ======================================================================
+#  WARNING --- SYNTHETIC / SHAPE-ONLY FALLBACK ONLY ---  NOT A REAL BANK
+# ======================================================================
+#
+#  This script writes RANDOM NOISE that happens to have the right
+#  [8, num_slots, 128] float32 shape per CONTRACTS.md §4. The bytes are
+#  meaningless. They will NOT steer the model. They WILL pass byte-length
+#  and dtype invariants, which is exactly enough to keep CI green and to
+#  let downstream pipeline pieces (upload_banks.py, validate_banks_against
+#  _engine.py, the byte-length test) run off-GPU.
+#
+#  Real demo banks must come from the B1 / R1 compiler on a GPU box
+#  with HF_TOKEN + ANTHROPIC_API_KEY:
+#
+#      python scripts/compile_real_banks.py        # all 3 page types
+#      # or, one at a time:
+#      python -m bank_compiler compile --url <...> --page-key <...> --out banks/
+#
+#  Use cases for THIS script:
+#    - CI / off-GPU dev: produce a manifest + .bin set that exercises
+#      the upload, validate, and engine-load paths without a model.
+#    - Local smoke tests of bank_io round-trips and byte-length math.
+#
+#  Do NOT use this script to populate ClickHouse / S3 for a demo. Any
+#  bank produced here is tagged `"synthetic": true` in manifest.json so
+#  `python -m bank_compiler validate` warns visibly. The real compile
+#  path writes `"synthetic": false`.
+# ======================================================================
+"""Produce the 3 demo banks (hn:front, hn:item, popup:demo) into banks/
+as SYNTHETIC, shape-only artifacts.
 
-This is B2's "produce the bank artifacts" step. The CANONICAL path is to run
-B1's bank-compiler (DOM → Haiku summary → Llama forward → pre-RoPE K/V) on a
-GPU box — that's what ends up shipped to ClickHouse for the demo.
+For the canonical real-bank pipeline see ``scripts/compile_real_banks.py``
+and the R1 spec at ``docs/handoff/phase-2/rahul/R1-real-banks.md``.
 
-When B1's compiler is available AND a GPU + HF_TOKEN + ANTHROPIC_API_KEY are
-present, this script delegates to it. Otherwise it falls back to writing
-shape-correct **synthetic** banks (random float32 with the right
-``[8, num_slots, 128]`` shape per CONTRACTS §4) plus placeholder summary
-files. The fallback is what unblocks the rest of the B2 pipeline (upload
-script, validation script, byte-length tests) when developing off-GPU.
+When B1's compiler is importable AND HF_TOKEN + ANTHROPIC_API_KEY are
+present, this script refuses to run (returns exit code 2) so nobody
+accidentally clobbers real banks with noise. Pass ``--force-synthetic``
+to override and write shape-only banks anyway (CI-style).
 
 Bin files written this way are gitignored. Summary .txt files and
 manifest.json are committed.
@@ -150,9 +176,11 @@ def main() -> int:
 
     if not args.force_synthetic and _real_compiler_available():
         print(
-            "ERROR: real bank-compiler is importable; this fallback script "
-            "should NOT be used in that case. Run `python -m bank_compiler "
-            "compile ...` per docs/handoff/rahul/02-demo-assets-and-data.md.",
+            "ERROR: real bank-compiler is importable AND API keys are set; "
+            "this synthetic fallback script should NOT be used in that case. "
+            "Run `scripts/compile_real_banks.py` or "
+            "`python -m bank_compiler compile ...` for real banks.\n"
+            "Pass --force-synthetic to override (CI/dev use only).",
             file=sys.stderr,
         )
         return 2
@@ -173,12 +201,19 @@ def main() -> int:
         entry = bank_io.save_bank(str(out_dir), page_key, banks, meta=meta)
         print(
             f"  wrote {page_key:<11}  slots={entry['num_slots']:<4}  "
-            f"summary={summary_path.name}"
+            f"summary={summary_path.name}  (SYNTHETIC)"
         )
 
+    # Tag every bank we just wrote as synthetic so downstream code can warn.
+    manifest = bank_io.read_manifest(str(out_dir))
+    for b in manifest.get("banks", []):
+        b["synthetic"] = True
+    bank_io.write_manifest(str(out_dir), manifest)
+
     print(f"\nManifest: {out_dir / 'manifest.json'}")
-    print("Note: .bin files are synthetic and gitignored. Real banks come "
-          "from `python -m bank_compiler compile ...` (B1) on a GPU box.")
+    print("Note: .bin files are SYNTHETIC noise (gitignored) and every "
+          "manifest entry is tagged `synthetic: true`. Real banks come from "
+          "`scripts/compile_real_banks.py` on a GPU box.")
     return 0
 
 
