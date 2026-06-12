@@ -11,3 +11,5 @@ clickhouse-connect>=0.7
 httpx
 # Shared contract code (page_key, bank_io, storage). Editable from the monorepo.
 -e ../../packages/shared-py
+# Install inference-engine itself in dev mode for tests.
+-e .[dev]

@@ -42,16 +42,12 @@ def to_bytes(arr: np.ndarray) -> bytes:
     if not isinstance(arr, np.ndarray):
         raise BankFormatError(f"expected np.ndarray, got {type(arr)!r}")
     if arr.dtype != _NP_DTYPE:
-        raise BankFormatError(
-            f"expected dtype {_NP_DTYPE}, got {arr.dtype}"
-        )
+        raise BankFormatError(f"expected dtype {_NP_DTYPE}, got {arr.dtype}")
     if arr.ndim != 3:
         raise BankFormatError(f"expected 3-D array, got shape {arr.shape}")
     n_heads, num_slots, head_dim = arr.shape
     if n_heads != NUM_KV_HEADS:
-        raise BankFormatError(
-            f"expected {NUM_KV_HEADS} KV heads, got {n_heads}"
-        )
+        raise BankFormatError(f"expected {NUM_KV_HEADS} KV heads, got {n_heads}")
     if head_dim != HEAD_DIM:
         raise BankFormatError(f"expected head_dim {HEAD_DIM}, got {head_dim}")
     if num_slots < 1:
@@ -65,13 +61,12 @@ def from_bytes(buf: bytes, num_slots: int) -> np.ndarray:
     expected = NUM_KV_HEADS * num_slots * HEAD_DIM * _NP_DTYPE.itemsize
     if len(buf) != expected:
         raise BankFormatError(
-            f"byte length {len(buf)} != expected {expected} "
-            f"for num_slots={num_slots}"
+            f"byte length {len(buf)} != expected {expected} for num_slots={num_slots}"
         )
-    arr = np.frombuffer(buf, dtype=_NP_DTYPE).reshape(
-        NUM_KV_HEADS, num_slots, HEAD_DIM
-    )
-    return arr
+    arr = np.frombuffer(buf, dtype=_NP_DTYPE).reshape(NUM_KV_HEADS, num_slots, HEAD_DIM)
+    return (
+        arr.copy()
+    )  # frombuffer is read-only; callers (torch.from_numpy) need writable
 
 
 # --------------------------------------------------------------------------
@@ -132,8 +127,7 @@ def save_bank(
     layers = sorted(banks.keys())
     if layers != sorted(SELECTED_LAYERS):
         raise BankFormatError(
-            f"bank must cover exactly layers {sorted(SELECTED_LAYERS)}, "
-            f"got {layers}"
+            f"bank must cover exactly layers {sorted(SELECTED_LAYERS)}, got {layers}"
         )
 
     os.makedirs(out_dir, exist_ok=True)
