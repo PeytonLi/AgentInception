@@ -15,13 +15,12 @@ import pytest
 
 pytest.importorskip("torch", reason="torch required for inference engine")
 
+from conftest import import_app_fakes
 from fastapi.testclient import TestClient
 from inference_engine.bank_registry import BankRegistry
 from inference_engine.server import create_app
 
-_INF_TESTS = Path(__file__).resolve().parents[2] / "apps" / "inference-engine" / "tests"
-sys.path.insert(0, str(_INF_TESTS))
-from fakes import FakeBackend
+FakeBackend = import_app_fakes("inference-engine").FakeBackend
 
 
 @pytest.fixture
