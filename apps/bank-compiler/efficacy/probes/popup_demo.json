@@ -1,0 +1,26 @@
+[
+  {
+    "prompt": "There is a modal blocking the page. What CSS selector should I click to dismiss it?",
+    "description": "dismiss selector"
+  },
+  {
+    "prompt": "Is there a cookie consent modal on this page? What data-testid identifies it?",
+    "description": "modal presence detection"
+  },
+  {
+    "prompt": "What are the two options for responding to the cookie modal?",
+    "description": "accept/reject buttons"
+  },
+  {
+    "prompt": "What is the extractable key statistic on this page?",
+    "description": "key statistic value"
+  },
+  {
+    "prompt": "What happens after dismissing the modal? What content becomes visible?",
+    "description": "post-dismiss content"
+  },
+  {
+    "prompt": "What is the data-testid attribute on the cookie overlay element?",
+    "description": "overlay data-testid"
+  }
+]
