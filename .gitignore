@@ -13,5 +13,23 @@ banks/*.bin
 node_modules/
 __pycache__/
 *.pyc
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
 .turbo/
 .next/
+dist/
+build/
+
+# Model caches (HF / torch)
+.cache/
+hf_cache/
+*.safetensors
+
+# Bank summaries are committed; raw byte artifacts are not
+banks/*.summary.txt.bak
+
+# OS / editor
+.DS_Store
+Thumbs.db

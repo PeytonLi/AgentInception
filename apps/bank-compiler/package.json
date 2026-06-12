@@ -1,0 +1,9 @@
+{
+  "name": "@ghostbrowser/bank-compiler",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "python -c \"import compileall,sys; sys.exit(0 if compileall.compile_dir('src', quiet=1) else 1)\"",
+    "test": "python -m pytest tests -q"
+  }
+}

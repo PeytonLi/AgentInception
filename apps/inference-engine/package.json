@@ -1,0 +1,10 @@
+{
+  "name": "@ghostbrowser/inference-engine",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "python -c \"import compileall,sys; sys.exit(0 if compileall.compile_dir('src', quiet=1) else 1)\"",
+    "test": "python -m pytest tests -q",
+    "dev": "uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload"
+  }
+}
