@@ -21,19 +21,16 @@ pytestmark = pytest.mark.slow
 pytest.importorskip("torch", reason="torch required for inference engine")
 
 from agent_runner.actions import parse_action
+
+# Wire both apps' test doubles under namespaced module names (both ship a
+# module literally named `fakes`; see conftest.import_app_fakes).
+from conftest import import_app_fakes
 from fastapi.testclient import TestClient
 from inference_engine.bank_registry import BankRegistry
 from inference_engine.server import create_app
 
-# Wire inference engine test doubles
-_INF_TESTS = Path(__file__).resolve().parents[2] / "apps" / "inference-engine" / "tests"
-sys.path.insert(0, str(_INF_TESTS))
-from fakes import FakeBackend
-
-# Wire agent-runner test fakes
-_AR_TESTS = Path(__file__).resolve().parents[2] / "apps" / "agent-runner" / "tests"
-sys.path.insert(0, str(_AR_TESTS))
-from fakes import FakePageDriver
+FakeBackend = import_app_fakes("inference-engine").FakeBackend
+FakePageDriver = import_app_fakes("agent-runner").FakePageDriver
 
 
 def _make_responses() -> list[str]:
