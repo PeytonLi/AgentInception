@@ -1,0 +1,89 @@
+{
+  "model_id": "meta-llama/Llama-3.1-8B-Instruct",
+  "selected_layers": [
+    8,
+    12,
+    16,
+    20
+  ],
+  "banks": [
+    {
+      "page_key": "hn:front",
+      "domain": "news.ycombinator.com",
+      "num_slots": 312,
+      "dom_structural_hash": "54c761ad4be3dc119c222f8eb244536b5ffcf13548b05e2371e15e9c06db7951",
+      "summary_text_path": "banks/hn_front.summary.txt",
+      "files": {
+        "8": {
+          "k": "hn_front__L8__k.bin",
+          "v": "hn_front__L8__v.bin"
+        },
+        "12": {
+          "k": "hn_front__L12__k.bin",
+          "v": "hn_front__L12__v.bin"
+        },
+        "16": {
+          "k": "hn_front__L16__k.bin",
+          "v": "hn_front__L16__v.bin"
+        },
+        "20": {
+          "k": "hn_front__L20__k.bin",
+          "v": "hn_front__L20__v.bin"
+        }
+      },
+      "compiled_at": "2026-06-12T20:57:43Z"
+    },
+    {
+      "page_key": "hn:item",
+      "domain": "news.ycombinator.com",
+      "num_slots": 420,
+      "dom_structural_hash": "e9f29d9c2320638620957d86bc86c1f77a32ffd45fa1358b36d543ebf8fdfaeb",
+      "summary_text_path": "banks/hn_item.summary.txt",
+      "files": {
+        "8": {
+          "k": "hn_item__L8__k.bin",
+          "v": "hn_item__L8__v.bin"
+        },
+        "12": {
+          "k": "hn_item__L12__k.bin",
+          "v": "hn_item__L12__v.bin"
+        },
+        "16": {
+          "k": "hn_item__L16__k.bin",
+          "v": "hn_item__L16__v.bin"
+        },
+        "20": {
+          "k": "hn_item__L20__k.bin",
+          "v": "hn_item__L20__v.bin"
+        }
+      },
+      "compiled_at": "2026-06-12T20:57:43Z"
+    },
+    {
+      "page_key": "popup:demo",
+      "domain": "localhost",
+      "num_slots": 180,
+      "dom_structural_hash": "3161ca0260463e3f247ee86b7bda1e3433916e3a9354072f8def0e4225196e28",
+      "summary_text_path": "banks/popup_demo.summary.txt",
+      "files": {
+        "8": {
+          "k": "popup_demo__L8__k.bin",
+          "v": "popup_demo__L8__v.bin"
+        },
+        "12": {
+          "k": "popup_demo__L12__k.bin",
+          "v": "popup_demo__L12__v.bin"
+        },
+        "16": {
+          "k": "popup_demo__L16__k.bin",
+          "v": "popup_demo__L16__v.bin"
+        },
+        "20": {
+          "k": "popup_demo__L20__k.bin",
+          "v": "popup_demo__L20__v.bin"
+        }
+      },
+      "compiled_at": "2026-06-12T20:57:43Z"
+    }
+  ]
+}
