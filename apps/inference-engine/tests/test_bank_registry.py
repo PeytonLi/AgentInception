@@ -8,34 +8,36 @@ import numpy as np
 import pytest
 import torch
 from ghost_shared import bank_io
+from ghost_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS
 
 from inference_engine.bank_registry import BankRegistry
 
 
 def _write_fixture_banks(banks_dir, page_keys=("hn:front",), num_slots=16):
     rng = np.random.default_rng(1)
-    entries = []
     for pk in page_keys:
         layers = {
             layer: (
-                rng.standard_normal((8, num_slots, 128), dtype=np.float32),
-                rng.standard_normal((8, num_slots, 128), dtype=np.float32),
+                rng.standard_normal(
+                    (NUM_KV_HEADS, num_slots, HEAD_DIM), dtype=np.float32
+                ),
+                rng.standard_normal(
+                    (NUM_KV_HEADS, num_slots, HEAD_DIM), dtype=np.float32
+                ),
             )
-            for layer in bank_io.SELECTED_LAYERS
+            for layer in SELECTED_LAYERS
         }
-        files = bank_io.write_bank_files(banks_dir, pk, layers)
-        entries.append(
-            {
-                "page_key": pk,
+        bank_io.save_bank(
+            banks_dir,
+            pk,
+            layers,
+            meta={
                 "domain": "news.ycombinator.com",
-                "num_slots": num_slots,
                 "dom_structural_hash": "00" * 32,
                 "summary_text_path": f"banks/{pk.replace(':', '_')}.summary.txt",
-                "files": files,
                 "compiled_at": "2026-06-12T18:00:00Z",
-            }
+            },
         )
-    bank_io.write_manifest(banks_dir, entries)
 
 
 def test_from_manifest_dir(tmp_path):
@@ -81,8 +83,20 @@ def test_from_clickhouse(monkeypatch):
     k = rng.standard_normal((8, 9, 128), dtype=np.float32)
     v = rng.standard_normal((8, 9, 128), dtype=np.float32)
     rows = [
-        ("hn:front", 8, 9, bank_io.serialize_bank_array(k), bank_io.serialize_bank_array(v)),
-        ("hn:front", 12, 9, bank_io.serialize_bank_array(k * 2), bank_io.serialize_bank_array(v * 2)),
+        (
+            "hn:front",
+            8,
+            9,
+            bank_io.to_bytes(k),
+            bank_io.to_bytes(v),
+        ),
+        (
+            "hn:front",
+            12,
+            9,
+            bank_io.to_bytes(k * 2),
+            bank_io.to_bytes(v * 2),
+        ),
     ]
     fake = _FakeClient(rows)
     monkeypatch.setattr(
@@ -100,9 +114,18 @@ def test_from_clickhouse(monkeypatch):
 
 def test_from_clickhouse_rejects_slot_mismatch(monkeypatch):
     k = np.zeros((8, 9, 128), dtype=np.float32)
-    rows = [("hn:front", 8, 12, bank_io.serialize_bank_array(k), bank_io.serialize_bank_array(k))]
+    rows = [
+        (
+            "hn:front",
+            8,
+            12,
+            bank_io.to_bytes(k),
+            bank_io.to_bytes(k),
+        )
+    ]
     monkeypatch.setattr(
-        "inference_engine.bank_registry._clickhouse_client", lambda url: _FakeClient(rows)
+        "inference_engine.bank_registry._clickhouse_client",
+        lambda url: _FakeClient(rows),
     )
     with pytest.raises(ValueError):
         BankRegistry.from_clickhouse("http://localhost:8123")

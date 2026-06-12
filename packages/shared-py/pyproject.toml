@@ -1,18 +1,21 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "ghost-shared"
 version = "0.1.0"
-description = "GhostBrowser OS shared Python lib: page_key() and bank (de)serialization (CONTRACTS.md §3-4). Single implementation - all Python apps import this."
+description = "Shared contract code for GhostBrowser OS: page_key, bank IO, DOM hash, ClickHouse storage."
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.26"]
+dependencies = [
+    "numpy>=1.24",
+    "clickhouse-connect>=0.7",
+]
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+test = ["pytest>=7"]
 
-[tool.hatch.build.targets.wheel]
+[tool.setuptools]
 packages = ["ghost_shared"]
 
 [tool.pytest.ini_options]

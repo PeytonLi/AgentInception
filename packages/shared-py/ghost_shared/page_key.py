@@ -1,32 +1,54 @@
-"""page_key() — CONTRACTS.md §3. THE one implementation; all apps import this.
+"""Bank identity: page_key, not DOM hash. See CONTRACTS.md §3.
 
-Banks are looked up by page type, never by exact DOM hash:
-    news.ycombinator.com/ or /news?p=N   -> "hn:front"
-    news.ycombinator.com/item?id=*       -> "hn:item"
-    localhost:*/popup* or file://*popup* -> "popup:demo"
-    anything else                        -> "unknown"  (=> no bank; plain-prompt fallback)
+Banks are looked up by *page type*, not exact DOM hash, because HN comment
+counts vary per article and exact structural hashes would never match.
+
+Mapping (first match wins):
+    news.ycombinator.com/         or /news?p=N   -> "hn:front"
+    news.ycombinator.com/item?id=*               -> "hn:item"
+    localhost:*/popup*  or  file://*popup*        -> "popup:demo"
+    anything else                                 -> "unknown"
 """
 
-from urllib.parse import parse_qs, urlsplit
+from __future__ import annotations
+
+from urllib.parse import parse_qs, urlparse
+
+HN_HOST = "news.ycombinator.com"
+
+# Front-page paths on Hacker News (with or without trailing slash).
+_HN_FRONT_PATHS = {"", "/", "/news", "/newest", "/front"}
 
 
 def page_key(url: str) -> str:
-    raw = url.strip()
-    parts = urlsplit(raw if "://" in raw else f"https://{raw}")
-    scheme = parts.scheme.lower()
-    host = (parts.hostname or "").lower()
-    path = parts.path or "/"
+    """Map a URL to its page_key. Unknown pages return "unknown"."""
+    if not url:
+        return "unknown"
 
-    if scheme == "file":
-        return "popup:demo" if "popup" in raw.lower() else "unknown"
+    parsed = urlparse(url.strip())
+    scheme = (parsed.scheme or "").lower()
+    host = (parsed.hostname or "").lower()
+    path = parsed.path or ""
 
-    if host == "localhost":
-        return "popup:demo" if "popup" in path.lower() else "unknown"
-
-    if host == "news.ycombinator.com":
-        if path in ("", "/", "/news"):
+    # --- Hacker News -----------------------------------------------------
+    if host == HN_HOST or host.endswith("." + HN_HOST):
+        norm_path = path.rstrip("/") if path != "/" else "/"
+        if path == "/item" or norm_path == "/item":
+            qs = parse_qs(parsed.query)
+            if "id" in qs:
+                return "hn:item"
+            return "unknown"
+        if norm_path in _HN_FRONT_PATHS:
             return "hn:front"
-        if path == "/item" and parse_qs(parts.query).get("id"):
-            return "hn:item"
+        return "unknown"
+
+    # --- Popup fixture page ----------------------------------------------
+    # localhost (any port) with "popup" in the path, OR a file:// URL whose
+    # path references the popup fixture.
+    if "popup" in path.lower():
+        if scheme == "file":
+            return "popup:demo"
+        if host in ("localhost", "127.0.0.1", "0.0.0.0"):
+            return "popup:demo"
 
     return "unknown"

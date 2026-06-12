@@ -1,0 +1,51 @@
+"use client";
+
+import { Header } from "@/components/Header";
+import { LayerInjectionGraph } from "@/components/LayerInjectionGraph";
+import { LogsMathPanel } from "@/components/LogsMathPanel";
+import { TokenComparator } from "@/components/TokenComparator";
+import { ViewportPanel } from "@/components/ViewportPanel";
+import { useEventFeed } from "@/lib/useEventFeed";
+
+const WS_URL =
+  process.env.NEXT_PUBLIC_INFERENCE_WS ?? "ws://localhost:8000/ws/events";
+
+export default function Dashboard() {
+  const { state } = useEventFeed(WS_URL);
+
+  return (
+    <main className="bg-grid flex h-screen flex-col">
+      <Header
+        sessionId={state.sessionId}
+        mode={state.mode}
+        status={state.status}
+        step={state.lastStep}
+      />
+
+      <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-2 p-2">
+        <ViewportPanel
+          frame={state.latestFrame}
+          popupFlashSeq={state.popupFlashSeq}
+          activePageKey={state.activePageKey}
+        />
+        <TokenComparator
+          history={state.metricHistory}
+          cumVisible={state.cumVisible}
+          cumBaseline={state.cumBaseline}
+          kvSavingsRatio={state.kvSavingsRatio}
+        />
+        <LayerInjectionGraph
+          litLayers={state.litLayers}
+          injectionActive={state.injectionActive}
+          numSlots={state.numSlots}
+          activePageKey={state.activePageKey}
+        />
+        <LogsMathPanel
+          logs={state.logs}
+          kvSavingsRatio={state.kvSavingsRatio}
+          injectionActive={state.injectionActive}
+        />
+      </div>
+    </main>
+  );
+}

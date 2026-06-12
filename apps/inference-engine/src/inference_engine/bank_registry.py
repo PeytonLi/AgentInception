@@ -61,8 +61,8 @@ class BankRegistry:
         )
         banks: dict[str, LayerBanks] = {}
         for page_key, layer_id, num_slots, k_buf, v_buf in result.result_rows:
-            k = bank_io.deserialize_bank_array(bytes(k_buf))
-            v = bank_io.deserialize_bank_array(bytes(v_buf))
+            k = bank_io.from_bytes(bytes(k_buf), num_slots)
+            v = bank_io.from_bytes(bytes(v_buf), num_slots)
             if k.shape[1] != num_slots or v.shape[1] != num_slots:
                 raise ValueError(
                     f"bank {page_key!r} layer {layer_id}: stored num_slots={num_slots} "
@@ -76,7 +76,9 @@ class BankRegistry:
 
     @classmethod
     def from_manifest_dir(cls, banks_dir: str | Path) -> "BankRegistry":
-        loaded = bank_io.load_banks(banks_dir)
+        loaded = bank_io.load_all_banks_from_dir(str(banks_dir))
+        if not loaded:
+            raise FileNotFoundError(f"no banks found in manifest dir {banks_dir}")
         banks: dict[str, LayerBanks] = {
             page_key: {
                 layer: (torch.from_numpy(k), torch.from_numpy(v))
