@@ -15,6 +15,7 @@ pass-through. With a bank set:
 Version-sensitive: written against transformers==4.46.* (CONTRACTS §1).
 """
 
+import logging
 import math
 from typing import Optional, Tuple
 
@@ -26,6 +27,12 @@ from transformers.models.llama.modeling_llama import (
     apply_rotary_pos_emb,
     repeat_kv,
 )
+
+logger = logging.getLogger("inference_engine.mi_attention")
+
+# Pre-RoPE bank values above this magnitude risk overflowing bf16 logits at
+# matmul time; we warn at load so the H+4 triage can spot a mis-compiled bank.
+_BANK_MAGNITUDE_WARN = 1e4
 
 
 def expand_bank(bank: torch.Tensor, n_rep: int) -> torch.Tensor:
@@ -43,7 +50,9 @@ class MIAttention(nn.Module):
     def __init__(self, inner: LlamaAttention):
         super().__init__()
         self.inner = inner
-        self.bank_k: Optional[torch.Tensor] = None  # [num_kv_heads, num_slots, head_dim]
+        self.bank_k: Optional[torch.Tensor] = (
+            None  # [num_kv_heads, num_slots, head_dim]
+        )
         self.bank_v: Optional[torch.Tensor] = None
         # Pre-softmax bank logits for the last query position, [bsz, num_heads, num_slots].
         self.last_bank_scores: Optional[torch.Tensor] = None
@@ -62,8 +71,29 @@ class MIAttention(nn.Module):
                     f"head_dim={expected[1]}], got {tuple(t.shape)}"
                 )
         if k.shape != v.shape:
-            raise ValueError(f"bank K shape {tuple(k.shape)} != V shape {tuple(v.shape)}")
-        param = a.q_proj.weight  # banks stored float32, cast to model dtype/device at load
+            raise ValueError(
+                f"bank K shape {tuple(k.shape)} != V shape {tuple(v.shape)}"
+            )
+        # A corrupt .bin must not poison every step: reject NaN/inf at load time
+        # and warn on magnitudes that risk overflowing bf16 logits downstream.
+        for name, t in (("k", k), ("v", v)):
+            if not torch.isfinite(t).all():
+                raise ValueError(
+                    f"bank {name} contains non-finite values (NaN/inf); refusing "
+                    f"to install a corrupt bank that would poison every step"
+                )
+            peak = t.abs().max().item()
+            if peak > _BANK_MAGNITUDE_WARN:
+                logger.warning(
+                    "bank %s peak magnitude %.3g is large; pre-RoPE logits may "
+                    "overflow bf16 - the forward NaN/inf guard will suppress "
+                    "any degenerate slots",
+                    name,
+                    peak,
+                )
+        param = (
+            a.q_proj.weight
+        )  # banks stored float32, cast to model dtype/device at load
         self.bank_k = k.to(device=param.device, dtype=param.dtype)
         self.bank_v = v.to(device=param.device, dtype=param.dtype)
 
@@ -105,9 +135,21 @@ class MIAttention(nn.Module):
         a = self.inner
         bsz, q_len, _ = hidden_states.size()
 
-        query_states = a.q_proj(hidden_states).view(bsz, q_len, a.num_heads, a.head_dim).transpose(1, 2)
-        key_states = a.k_proj(hidden_states).view(bsz, q_len, a.num_key_value_heads, a.head_dim).transpose(1, 2)
-        value_states = a.v_proj(hidden_states).view(bsz, q_len, a.num_key_value_heads, a.head_dim).transpose(1, 2)
+        query_states = (
+            a.q_proj(hidden_states)
+            .view(bsz, q_len, a.num_heads, a.head_dim)
+            .transpose(1, 2)
+        )
+        key_states = (
+            a.k_proj(hidden_states)
+            .view(bsz, q_len, a.num_key_value_heads, a.head_dim)
+            .transpose(1, 2)
+        )
+        value_states = (
+            a.v_proj(hidden_states)
+            .view(bsz, q_len, a.num_key_value_heads, a.head_dim)
+            .transpose(1, 2)
+        )
 
         # Canonical pre-RoPE query for the bank block (Eq. 7, delta=0).
         # apply_rotary_pos_emb is out-of-place, so this reference stays un-rotated.
@@ -117,18 +159,24 @@ class MIAttention(nn.Module):
             cos, sin = a.rotary_emb(value_states, position_ids)
         else:
             cos, sin = position_embeddings
-        query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin)
+        query_states, key_states = apply_rotary_pos_emb(
+            query_states, key_states, cos, sin
+        )
 
         if past_key_value is not None:
             cache_kwargs = {"sin": sin, "cos": cos, "cache_position": cache_position}
-            key_states, value_states = past_key_value.update(key_states, value_states, a.layer_idx, cache_kwargs)
+            key_states, value_states = past_key_value.update(
+                key_states, value_states, a.layer_idx, cache_kwargs
+            )
 
         key_states = repeat_kv(key_states, a.num_key_value_groups)
         value_states = repeat_kv(value_states, a.num_key_value_groups)
         kv_len = key_states.shape[-2]
 
         # --- prompt-side logits: standard RoPE'd causal attention ---
-        logits_prompt = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(a.head_dim)
+        logits_prompt = torch.matmul(
+            query_states, key_states.transpose(2, 3)
+        ) / math.sqrt(a.head_dim)
 
         if attention_mask is not None:
             logits_prompt = logits_prompt + attention_mask[:, :, :, :kv_len]
@@ -137,22 +185,44 @@ class MIAttention(nn.Module):
             # relies on is_causal=True; rebuild that causal mask here. Query i sits at
             # absolute position cache_position[i] and may attend to cache slots <= it.
             if cache_position is None:
-                cache_position = torch.arange(kv_len - q_len, kv_len, device=hidden_states.device)
+                cache_position = torch.arange(
+                    kv_len - q_len, kv_len, device=hidden_states.device
+                )
             kv_idx = torch.arange(kv_len, device=hidden_states.device)
-            causal = torch.zeros((q_len, kv_len), dtype=logits_prompt.dtype, device=hidden_states.device)
-            causal.masked_fill_(kv_idx[None, :] > cache_position[:, None], torch.finfo(logits_prompt.dtype).min)
+            causal = torch.zeros(
+                (q_len, kv_len), dtype=logits_prompt.dtype, device=hidden_states.device
+            )
+            causal.masked_fill_(
+                kv_idx[None, :] > cache_position[:, None],
+                torch.finfo(logits_prompt.dtype).min,
+            )
             logits_prompt = logits_prompt + causal
 
         # --- bank-side logits: pre-RoPE q against canonical keys, no mask ---
-        bank_k = repeat_kv(self.bank_k.unsqueeze(0), a.num_key_value_groups)  # [1, num_heads, S, head_dim]
+        bank_k = repeat_kv(
+            self.bank_k.unsqueeze(0), a.num_key_value_groups
+        )  # [1, num_heads, S, head_dim]
         bank_v = repeat_kv(self.bank_v.unsqueeze(0), a.num_key_value_groups)
-        logits_bank = torch.matmul(q_pre_rope, bank_k.transpose(2, 3)) / math.sqrt(a.head_dim)
+        logits_bank = torch.matmul(q_pre_rope, bank_k.transpose(2, 3)) / math.sqrt(
+            a.head_dim
+        )
+        # Degenerate-slot guard: a slot whose pre-RoPE value overflowed bf16 (or is
+        # otherwise non-finite) would turn its whole softmax row into NaN. Map any
+        # non-finite bank logit to the dtype floor so that slot simply contributes
+        # zero weight - graceful degradation instead of a poisoned step. This is a
+        # no-op on finite logits, so the healthy fast path stays bit-identical.
+        neg = torch.finfo(logits_bank.dtype).min
+        logits_bank = torch.nan_to_num(logits_bank, nan=neg, posinf=neg, neginf=neg)
         self.last_bank_scores = logits_bank[:, :, -1, :].float().detach()
 
         # --- one softmax over [prompt ; bank], fp32 like upstream eager ---
         attn_weights = torch.cat([logits_prompt, logits_bank], dim=-1)
-        attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
-        attn_weights = nn.functional.dropout(attn_weights, p=a.attention_dropout, training=self.training)
+        attn_weights = nn.functional.softmax(
+            attn_weights, dim=-1, dtype=torch.float32
+        ).to(query_states.dtype)
+        attn_weights = nn.functional.dropout(
+            attn_weights, p=a.attention_dropout, training=self.training
+        )
 
         values = torch.cat([value_states, bank_v.expand(bsz, -1, -1, -1)], dim=2)
         attn_output = torch.matmul(attn_weights, values)
@@ -160,7 +230,11 @@ class MIAttention(nn.Module):
         attn_output = attn_output.transpose(1, 2).contiguous().reshape(bsz, q_len, -1)
         attn_output = a.o_proj(attn_output)
 
-        return attn_output, (attn_weights if output_attentions else None), past_key_value
+        return (
+            attn_output,
+            (attn_weights if output_attentions else None),
+            past_key_value,
+        )
 
 
 def swap_mi_attention(model, layers: list[int]) -> list[int]:
