@@ -92,7 +92,13 @@ class AgentRunner:
                 completed = True
                 logger.info("task complete at step %s: %s", step, action.type)
                 break
-            await self._execute(action)
+            try:
+                await self._execute(action)
+            except ActionExecutionError as exc:
+                logger.warning("action failed, feeding error back to model: %s", exc)
+                self.history.append(
+                    f"FAILED: {exc}. Try a different selector or approach."
+                )
         else:
             logger.warning(
                 "hit max_steps=%s without a terminal action", self.config.max_steps

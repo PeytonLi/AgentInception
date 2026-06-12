@@ -25,7 +25,9 @@ class CompileOptions:
     out_dir: str
     url: str | None = None
     html: str | None = None
-    selected_layers: list[int] | None = None  # default: agentinception_shared SELECTED_LAYERS
+    selected_layers: list[int] | None = (
+        None  # default: agentinception_shared SELECTED_LAYERS
+    )
     anthropic_client: Any = None  # for tests (deprecated; use summarizer_client)
     summarizer_client: Any = None  # pre-built client for the summarizer
     summarizer_provider: str | None = (
