@@ -9,9 +9,16 @@
 # Compiled bank artifacts (transfer via scp; manifest is committed)
 banks/*.bin
 
+# Generated test fixture banks (regenerate: python tests/fixtures/tiny_bank/make_tiny_bank.py)
+tests/fixtures/tiny_bank/generated/
+
 # Dependencies & caches
 node_modules/
 __pycache__/
 *.pyc
 .turbo/
 .next/
+.venv/
+*.egg-info/
+.pytest_cache/
+dist/

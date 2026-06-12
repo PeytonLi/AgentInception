@@ -1,0 +1,5 @@
+# Install (from this directory): uv pip install -r requirements.txt
+# On the EC2 GPU box install the CUDA torch build first per infra/runbook (A2),
+# then run this; pip will keep the already-satisfied torch.
+-e ../../packages/shared-py
+-e .[dev]
