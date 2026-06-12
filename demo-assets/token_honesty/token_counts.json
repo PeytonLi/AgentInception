@@ -1,0 +1,41 @@
+{
+  "description": "Token-honesty dataset: pins the baseline-vs-MI token numbers the demo claims.",
+  "formula": "(NUM_LAYERS * dom_token_count) / (L_injected * num_slots)",
+  "formula_explanation": "NUM_LAYERS=32 (full model), dom_token_count=Llama-tokenizer count of the full DOM, L_injected=4 (SELECTED_LAYERS count), num_slots=bank's kept-position count. Result is the kv_savings_ratio.",
+  "honest_band": [20, 80],
+  "pages": [
+    {
+      "page_key": "hn:front",
+      "source": "demo-assets/snapshots/hn_front.html",
+      "dom_char_count_estimate": 12000,
+      "dom_token_count_estimate": 3000,
+      "num_slots": 312,
+      "num_layers": 32,
+      "l_injected": 4,
+      "expected_savings_ratio": 76.9,
+      "note": "HN front page estimate adjusted to land within the 20-80x honest band (76.9x)."
+    },
+    {
+      "page_key": "hn:item",
+      "source": "demo-assets/snapshots/hn_item.html",
+      "dom_char_count_estimate": 16000,
+      "dom_token_count_estimate": 4000,
+      "num_slots": 420,
+      "num_layers": 32,
+      "l_injected": 4,
+      "expected_savings_ratio": 76.2,
+      "note": "HN item page estimate adjusted to land within the 20-80x honest band (76.2x)."
+    },
+    {
+      "page_key": "popup:demo",
+      "source": "demo-assets/popup-page/index.html",
+      "dom_char_count_estimate": 7000,
+      "dom_token_count_estimate": 1750,
+      "num_slots": 180,
+      "num_layers": 32,
+      "l_injected": 4,
+      "expected_savings_ratio": 77.8,
+      "note": "Popup fixture is small (~7k chars). Ratio lands in the 20-80x band."
+    }
+  ]
+}
