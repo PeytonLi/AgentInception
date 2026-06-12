@@ -9,9 +9,15 @@ interface LogsMathPanelProps {
   logs: LogEntry[];
   kvSavingsRatio: number;
   injectionActive: boolean;
+  numSlots: number;
+  domTokenCount: number;
 }
 
 const EQUATION = String.raw`K^* = [\,K_{\text{prompt}} \,\Vert\, K_{\text{bank}}\,], \quad V^* = [\,V_{\text{prompt}} \,\Vert\, V_{\text{bank}}\,]`;
+
+function fmtTokens(n: number): string {
+  return n.toLocaleString("en-US");
+}
 
 const LEVEL_COLOR: Record<string, string> = {
   info: "text-ink",
@@ -23,6 +29,8 @@ export function LogsMathPanel({
   logs,
   kvSavingsRatio,
   injectionActive,
+  numSlots,
+  domTokenCount,
 }: LogsMathPanelProps) {
   const equationHtml = useMemo(
     () => katex.renderToString(EQUATION, { throwOnError: false }),
@@ -54,15 +62,28 @@ export function LogsMathPanel({
           className="katex-block text-ink"
           dangerouslySetInnerHTML={{ __html: equationHtml }}
         />
-        <div className="mt-1 flex items-center gap-2 text-[9px] tracking-widest text-ink-dim">
-          <span
-            className={`h-1.5 w-1.5 rounded-full ${
-              injectionActive ? "bg-ghost" : "bg-edge"
-            }`}
-          />
-          injected at L ∈ {"{"}
-          {SELECTED_LAYERS.join(", ")}
-          {"}"}
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[9px] tracking-widest text-ink-dim">
+          <span className="flex items-center gap-2">
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                injectionActive ? "bg-ghost" : "bg-edge"
+              }`}
+            />
+            injected at L ∈ {"{"}
+            {SELECTED_LAYERS.join(", ")}
+            {"}"}
+          </span>
+          <span data-testid="num-slots">
+            <span className="text-ghost">{numSlots > 0 ? numSlots : "—"}</span>{" "}
+            BANK SLOTS
+          </span>
+          <span data-testid="dom-token-count">
+            REPLACED{" "}
+            <span className="text-baseline">
+              {domTokenCount > 0 ? fmtTokens(domTokenCount) : "—"}
+            </span>{" "}
+            DOM TOKENS
+          </span>
         </div>
       </div>
 

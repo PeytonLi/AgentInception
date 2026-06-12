@@ -68,3 +68,33 @@ class StepLogger:
                 storage.log_step(self._client, **row)
             except Exception as exc:  # pragma: no cover - depends on env
                 logger.warning("failed to write step %s to ClickHouse: %s", step, exc)
+
+    def read_back(self, session_id: str) -> list[dict[str, Any]]:
+        """Query ``agent_steps`` rows for a session straight back from ClickHouse.
+
+        Used by the P3 integration check (brief task 5) to prove the rows the
+        loop wrote are really persisted - not just held in memory. Returns the
+        in-memory rows for this session when no ClickHouse client is attached.
+        """
+        if self._client is None:
+            return [r for r in self.rows if r["session_id"] == session_id]
+        from ghost_shared import storage
+
+        result = self._client.query(
+            "SELECT session_id, step, mode, url, page_key, action_json, "
+            "visible_tokens, baseline_tokens, bank_found "
+            f"FROM {storage.STEPS_TABLE} WHERE session_id = %(sid)s ORDER BY step",
+            parameters={"sid": session_id},
+        )
+        cols = [
+            "session_id",
+            "step",
+            "mode",
+            "url",
+            "page_key",
+            "action_json",
+            "visible_tokens",
+            "baseline_tokens",
+            "bank_found",
+        ]
+        return [dict(zip(cols, row)) for row in result.result_rows]

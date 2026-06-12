@@ -15,6 +15,12 @@ GENERATION_MAX_NEW_TOKENS = 256  # brief task 5: temp 0, max ~256 tokens
 DOM_TRUNCATE_TOKENS = 4000  # baseline dom_text is truncated upstream to <= 4000 tokens
 
 
+# Attention kernel for the wrapped (non-MI) layers. "sdpa" is the default and
+# what the MI causal-mask rebuild in mi_attention.py is written against; "eager"
+# is the escape hatch if a transformers point-release changes sdpa mask plumbing.
+ATTN_IMPLEMENTATION = "sdpa"
+
+
 @dataclass(frozen=True)
 class Settings:
     model_id: str
@@ -22,6 +28,7 @@ class Settings:
     banks_dir: str
     port: int
     hf_token: str | None
+    attn_implementation: str = ATTN_IMPLEMENTATION
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -31,4 +38,7 @@ class Settings:
             banks_dir=os.environ.get("BANKS_DIR", "../../banks"),
             port=int(os.environ.get("INFERENCE_PORT", "8000")),
             hf_token=os.environ.get("HF_TOKEN"),
+            attn_implementation=os.environ.get(
+                "ATTN_IMPLEMENTATION", ATTN_IMPLEMENTATION
+            ),
         )
