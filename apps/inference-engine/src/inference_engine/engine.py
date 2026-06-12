@@ -27,6 +27,16 @@ Respond with EXACTLY ONE JSON object and no prose. Allowed actions:
 RETRY_SUFFIX = "Respond with only the JSON object."
 
 
+def cuda_memory_summary() -> str:
+    """One-line VRAM footprint for the startup log / P1 metrics baseline."""
+    if not torch.cuda.is_available():
+        return "cuda: unavailable (CPU run)"
+    allocated = torch.cuda.memory_allocated() / 1024**3
+    reserved = torch.cuda.memory_reserved() / 1024**3
+    name = torch.cuda.get_device_name(0)
+    return f"cuda[{name}]: {allocated:.1f} GiB allocated, {reserved:.1f} GiB reserved"
+
+
 class GenerationBackend(Protocol):
     model_loaded: bool
 
@@ -95,16 +105,35 @@ class LlamaBackend:
 
     @classmethod
     def load(cls, settings: Settings) -> "LlamaBackend":
+        import time
+
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
+        t0 = time.perf_counter()
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        logger.info("loading %s (bfloat16) on %s ...", settings.model_id, device)
-        tokenizer = AutoTokenizer.from_pretrained(settings.model_id, token=settings.hf_token)
+        # Llama-3.1-8B is ~16 GB in bf16; bf16 is required to fit an A10G (24 GB).
+        # CPU has no bf16 matmul kernels in torch, so fall back to f32 off-GPU.
+        dtype = torch.bfloat16 if device == "cuda" else torch.float32
+        logger.info(
+            "loading %s (%s) on %s, attn=%s ...",
+            settings.model_id,
+            dtype,
+            device,
+            settings.attn_implementation,
+        )
+        tokenizer = AutoTokenizer.from_pretrained(
+            settings.model_id, token=settings.hf_token
+        )
+        # Llama ships no pad token; generate() and any future batching need one.
+        # eos as pad is the standard convention and is masked out of the loss/output.
+        if tokenizer.pad_token_id is None:
+            tokenizer.pad_token = tokenizer.eos_token
         model = AutoModelForCausalLM.from_pretrained(
             settings.model_id,
-            torch_dtype=torch.bfloat16,
+            torch_dtype=dtype,
             device_map="auto" if device == "cuda" else None,
-            attn_implementation="sdpa",
+            attn_implementation=settings.attn_implementation,
+            low_cpu_mem_usage=True,
             token=settings.hf_token,
         )
         model.eval()
@@ -112,25 +141,44 @@ class LlamaBackend:
         logger.info("MI attention installed at layers %s", swapped)
 
         backend = cls(model, tokenizer)
-        smoke = backend.generate([{"role": "user", "content": "Say OK."}])
+        # Short cold-start smoke: prove the real forward+generate path works and
+        # surface dtype/device/OOM failures here, not on the first live request.
+        smoke = backend.generate(
+            [{"role": "user", "content": "Say OK."}], max_new_tokens=8
+        )
         logger.info("smoke generation: %r", smoke[:80])
+        logger.info(
+            "model ready in %.1fs; %s", time.perf_counter() - t0, cuda_memory_summary()
+        )
         return backend
 
+    @property
+    def device(self) -> torch.device:
+        # With device_map="auto" the input embeddings hold the canonical input
+        # device; model.device can be a meta placeholder, so read it from there.
+        return self.model.get_input_embeddings().weight.device
+
     @torch.no_grad()
-    def generate(self, messages: list[dict]) -> str:
+    def generate(
+        self, messages: list[dict], max_new_tokens: Optional[int] = None
+    ) -> str:
         input_ids = self.tokenizer.apply_chat_template(
             messages, add_generation_prompt=True, return_tensors="pt"
-        ).to(self.model.device)
+        ).to(self.device)
         out = self.model.generate(
             input_ids,
-            max_new_tokens=GENERATION_MAX_NEW_TOKENS,
+            max_new_tokens=max_new_tokens or GENERATION_MAX_NEW_TOKENS,
             do_sample=False,  # temp 0
-            pad_token_id=self.tokenizer.eos_token_id,
+            pad_token_id=self.tokenizer.pad_token_id,
         )
-        return self.tokenizer.decode(out[0, input_ids.shape[1] :], skip_special_tokens=True)
+        return self.tokenizer.decode(
+            out[0, input_ids.shape[1] :], skip_special_tokens=True
+        )
 
     def count_prompt_tokens(self, messages: list[dict]) -> int:
-        return len(self.tokenizer.apply_chat_template(messages, add_generation_prompt=True))
+        return len(
+            self.tokenizer.apply_chat_template(messages, add_generation_prompt=True)
+        )
 
     def apply_banks(self, layer_banks: Optional[dict]) -> list[int]:
         if not layer_banks:
