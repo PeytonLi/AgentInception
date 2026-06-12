@@ -101,6 +101,19 @@ def validate_dir(banks_dir: str) -> int:
             print(f"  - {e}")
         return 1
 
+    # Provenance: warn (don't fail) if any bank is synthetic. Banks compiled
+    # via the real B1/R1 pipeline carry `"synthetic": false`; the off-GPU
+    # fallback in `scripts/build_demo_banks.py` carries `"synthetic": true`.
+    # Older manifests with no key at all are treated as "unknown" (silent).
+    synthetic_keys = [b.get("page_key") for b in banks if b.get("synthetic") is True]
+    if synthetic_keys:
+        print(
+            "[validate] WARNING: the following banks are tagged "
+            f"synthetic (shape-only noise, NOT real): {synthetic_keys}. "
+            "Regenerate with scripts/compile_real_banks.py on a GPU box "
+            "before relying on them in a demo."
+        )
+
     print(f"[validate] OK — {len(banks)} bank(s), {len(expected_layers)} layer(s) each, manifest at {manifest_path}")
     return 0
 
