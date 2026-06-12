@@ -27,3 +27,6 @@ packages = ["src/inference_engine"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 filterwarnings = ["ignore::DeprecationWarning:transformers.*"]
+markers = [
+    "gpu: real-model tests that require a CUDA GPU (skipped off-GPU; run with -m gpu on the box)",
+]
