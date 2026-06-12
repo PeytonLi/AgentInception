@@ -98,29 +98,29 @@ The system momentarily freezes the primary website memory layer, hot-swaps a hig
 The system is organized as an decoupled, event-driven architecture designed to minimize latency between viewport detection and memory injection:
 
 ```mermaid
-%%{init: {'theme': 'base', 'flowchart': {'scale': 0.75, 'nodeSpacing': 20, 'rankSpacing': 30}}}%%
-flowchart LR
+flowchart TD
+    A[User Intent] --> B[API Layer - FastAPI]
+    B --> C[Agent Core]
 
-A[User Intent] --> B[API Layer - FastAPI]
-B --> C[Agent Core]
+    C --> D[Planner]
+    C --> E[Memory Router]
+    C --> F[Executor]
 
-C --> D[Planner]
-C --> E[Memory Router]
-C --> F[Executor]
+    E --> G[Latent Memory Bank]
+    G --> H[Vector Store / ClickHouse]
 
-E --> G[Latent Memory Bank]
-G --> H[Vector Store / ClickHouse]
+    F --> I[Browser Engine - Playwright]
+    I --> J[DOM Mapper]
+    I --> K[Action Engine]
 
-F --> I[Browser Engine - Playwright]
-I --> J[DOM Mapper]
-I --> K[Action Engine]
+    K --> L[Webpage Execution Result]
+    L --> C
 
-K --> L[Execution Result]
-L --> C
+    C --> M[Stealth Steering Module]
+    M --> N[Interrupt Handler]
+    N --> I
 
-C --> M[Stealth Steering]
-M --> N[Interrupt Handler]
-N --> I
+```
 
 ---
 
@@ -177,5 +177,5 @@ We believe the next generation of scalable AI agents will be defined not by the 
 
 ## References
 
-* **Harness Engineering Hackathon:** (https://luma.com/harnesshack?tk=Mjg6St)
+* **Harness Engineering Hackathon:** [Registration & Hackathon Dashboard](https://luma.com/harnesshack?tk=Mjg6St)
 * **Memory Inception Research Core:** [arXiv:2605.06225](https://arxiv.org/abs/2605.06225)
