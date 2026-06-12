@@ -14,7 +14,9 @@ import json
 import logging
 import sys
 import uuid
+from pathlib import Path
 
+from .bank_slots import load_num_slots_by_page
 from .browser import playwright_session
 from .config import RunnerConfig
 from .frames import FrameStreamer
@@ -52,6 +54,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--no-frames", dest="stream_frames", action="store_false")
     p.add_argument("--no-clickhouse", dest="log_clickhouse", action="store_false")
+    p.add_argument(
+        "--record-transcript",
+        default=None,
+        help="write the per-step run transcript (JSON) to this path",
+    )
     p.add_argument("--verbose", "-v", action="store_true")
     p.set_defaults(stream_frames=True, log_clickhouse=True)
     return p
@@ -69,13 +76,15 @@ async def _run(args: argparse.Namespace) -> int:
     )
     counter = get_token_counter()
     logging.getLogger("agent_runner").info("token backend: %s", counter.name)
+    num_slots_by_page = load_num_slots_by_page()
     step_logger = StepLogger.connect(
         config.clickhouse_url, enabled=config.log_clickhouse
     )
 
-    async with playwright_session(
-        headless=config.headless, viewport=config.viewport
-    ) as page, InferenceClient(config.inference_url) as client:
+    async with (
+        playwright_session(headless=config.headless, viewport=config.viewport) as page,
+        InferenceClient(config.inference_url) as client,
+    ):
         streamer = None
         if config.stream_frames:
             streamer = FrameStreamer(
@@ -95,6 +104,7 @@ async def _run(args: argparse.Namespace) -> int:
             mode=args.mode,
             step_logger=step_logger,
             metrics=Metrics(),
+            num_slots_by_page=num_slots_by_page,
         )
         try:
             outcome = await runner.run(args.start_url)
@@ -102,21 +112,32 @@ async def _run(args: argparse.Namespace) -> int:
             if streamer is not None:
                 await streamer.stop()
 
-    print(
-        json.dumps(
-            {
-                "session_id": session_id,
-                "mode": args.mode,
-                "completed": outcome.completed,
-                "steps": outcome.steps,
-                "result": outcome.result,
-                "cum_visible": outcome.metrics.cum_visible,
-                "cum_baseline": outcome.metrics.cum_baseline,
-                "kv_savings_ratio": outcome.metrics.kv_savings_ratio,
-            },
-            indent=2,
+    summary = {
+        "session_id": session_id,
+        "mode": args.mode,
+        "completed": outcome.completed,
+        "steps": outcome.steps,
+        "result": outcome.result,
+        "cum_visible": outcome.metrics.cum_visible,
+        "cum_baseline": outcome.metrics.cum_baseline,
+        "kv_savings_ratio": outcome.metrics.kv_savings_ratio,
+        "structural_kv_ratio": outcome.metrics.structural_kv_ratio,
+    }
+    if args.record_transcript:
+        path = Path(args.record_transcript)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(
+                {
+                    **summary,
+                    "token_backend": counter.name,
+                    "transcript": outcome.transcript,
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
         )
-    )
+    print(json.dumps(summary, indent=2))
     return 0 if outcome.completed else 1
 
 

@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from ghost_shared.page_key import page_key as compute_page_key
@@ -41,6 +41,7 @@ class RunResult:
     completed: bool
     steps: int
     metrics: Metrics
+    transcript: list[dict[str, Any]] = field(default_factory=list)
 
 
 class AgentRunner:
@@ -56,6 +57,7 @@ class AgentRunner:
         mode: str,
         step_logger: StepLogger | None = None,
         metrics: Metrics | None = None,
+        num_slots_by_page: dict[str, int] | None = None,
     ) -> None:
         if mode not in ("baseline", "mi"):
             raise ValueError(f"mode must be 'baseline' or 'mi', got {mode!r}")
@@ -69,6 +71,11 @@ class AgentRunner:
         self.step_logger = step_logger or StepLogger(None)
         self.metrics = metrics or Metrics()
         self.history: list[str] = []
+        # Canonical S_bank per page_key (manifest) for the structural KV ratio
+        # when the engine response does not echo num_slots.
+        self.num_slots_by_page = num_slots_by_page or {}
+        # Per-step record for the recorded demo transcript (P3 brief DoD).
+        self.transcript: list[dict[str, Any]] = []
 
     async def run(self, start_url: str) -> RunResult:
         await self.page.goto(start_url)
@@ -87,17 +94,18 @@ class AgentRunner:
                 break
             await self._execute(action)
         else:
-            logger.warning("hit max_steps=%s without a terminal action", self.config.max_steps)
+            logger.warning(
+                "hit max_steps=%s without a terminal action", self.config.max_steps
+            )
         return RunResult(
             result=result,
             completed=completed,
             steps=self.metrics.steps,
             metrics=self.metrics,
+            transcript=list(self.transcript),
         )
 
-    async def _run_step(
-        self, step: int
-    ) -> tuple[Action | None, dict[str, Any], str]:
+    async def _run_step(self, step: int) -> tuple[Action | None, dict[str, Any], str]:
         url = await self.page.url()
         page_key = compute_page_key(url)
         raw_text = await self.page.inner_text()
@@ -125,11 +133,23 @@ class AgentRunner:
             return None, resp, page_key
 
         visible, baseline = self._resolve_tokens(resp, dom_token_count)
-        self.metrics.record(visible, baseline)
+        injected_layers = resp.get("injected_layers") or []
+        num_slots = resp.get("num_slots")
+        if num_slots is None and resp.get("bank_found"):
+            num_slots = self.num_slots_by_page.get(page_key)
+        self.metrics.record(
+            visible,
+            baseline,
+            dom_token_count=dom_token_count,
+            num_slots=num_slots,
+            num_injected_layers=len(injected_layers) if injected_layers else None,
+        )
         if self.mode == "mi" and visible >= MI_VISIBLE_BUDGET:
             logger.warning(
                 "mi step %s visible_tokens=%s exceeds budget %s",
-                step, visible, MI_VISIBLE_BUDGET,
+                step,
+                visible,
+                MI_VISIBLE_BUDGET,
             )
 
         self.step_logger.log(
@@ -142,6 +162,23 @@ class AgentRunner:
             visible_tokens=visible,
             baseline_tokens=baseline,
             bank_found=bool(resp.get("bank_found", False)),
+        )
+        self.transcript.append(
+            {
+                "step": step,
+                "mode": self.mode,
+                "url": url,
+                "page_key": page_key,
+                "action": action.raw,
+                "bank_found": bool(resp.get("bank_found", False)),
+                "injected_layers": list(injected_layers),
+                "num_slots": num_slots,
+                "dom_token_count": dom_token_count,
+                "visible_tokens": visible,
+                "baseline_tokens": baseline,
+                "cum_visible": self.metrics.cum_visible,
+                "cum_baseline": self.metrics.cum_baseline,
+            }
         )
         self.history.append(action.describe())
         return action, resp, page_key
@@ -177,8 +214,10 @@ class AgentRunner:
             if self.mode == "baseline":
                 visible = baseline
             else:
-                visible = _PROMPT_OVERHEAD + self.counter.count(self.task) + sum(
-                    self.counter.count(h) for h in self.history
+                visible = (
+                    _PROMPT_OVERHEAD
+                    + self.counter.count(self.task)
+                    + sum(self.counter.count(h) for h in self.history)
                 )
         return int(visible), int(baseline)
 
