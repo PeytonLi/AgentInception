@@ -1,0 +1,70 @@
+{
+  "mode": "baseline",
+  "completed": true,
+  "steps": 2,
+  "result": {
+    "score": 312,
+    "top_commenters": [
+      "pg",
+      "dang",
+      "patio11"
+    ]
+  },
+  "token_backend": "heuristic",
+  "cum_visible": 14301,
+  "cum_baseline": 14301,
+  "kv_savings_ratio": 1.0,
+  "structural_kv_ratio": 0.0,
+  "structural_inputs": {
+    "num_layers": 32,
+    "t_guidance_peak_dom_tokens": 0,
+    "injected_layers": 0,
+    "s_bank_num_slots": 0,
+    "formula": "(NUM_LAYERS * T_guidance) / (L_injected * S_bank)"
+  },
+  "transcript": [
+    {
+      "step": 0,
+      "mode": "baseline",
+      "url": "https://news.ycombinator.com/",
+      "page_key": "hn:front",
+      "action": {
+        "action": "goto",
+        "url": "https://news.ycombinator.com/item?id=44210000"
+      },
+      "bank_found": false,
+      "injected_layers": [],
+      "num_slots": null,
+      "dom_token_count": 896,
+      "visible_tokens": 1016,
+      "baseline_tokens": 1016,
+      "cum_visible": 1016,
+      "cum_baseline": 1016
+    },
+    {
+      "step": 1,
+      "mode": "baseline",
+      "url": "https://news.ycombinator.com/item?id=44210000",
+      "page_key": "hn:item",
+      "action": {
+        "action": "extract",
+        "result": {
+          "score": 312,
+          "top_commenters": [
+            "pg",
+            "dang",
+            "patio11"
+          ]
+        }
+      },
+      "bank_found": false,
+      "injected_layers": [],
+      "num_slots": null,
+      "dom_token_count": 13165,
+      "visible_tokens": 13285,
+      "baseline_tokens": 13285,
+      "cum_visible": 14301,
+      "cum_baseline": 14301
+    }
+  ]
+}

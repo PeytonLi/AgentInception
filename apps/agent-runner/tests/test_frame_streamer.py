@@ -5,9 +5,9 @@ from __future__ import annotations
 import asyncio
 
 import pytest
+from fakes import FakePageDriver
 
 from agent_runner.frames import FrameStreamer
-from fakes import FakePageDriver
 
 
 class _RecordingClient:
@@ -31,6 +31,38 @@ async def test_streamer_captures_and_posts_frames():
     assert len(client.frames) >= 2
     # base64 of the fake JPEG bytes
     assert all(isinstance(f, str) and f for f in client.frames)
+
+
+@pytest.mark.asyncio
+async def test_streamer_uses_configured_quality_and_cadence():
+    # P3 task 4: frames captured at JPEG quality 50, ~300 ms cadence.
+    qualities: list[int] = []
+
+    class _QualityPage(FakePageDriver):
+        async def screenshot_jpeg(self, quality: int = 50) -> bytes:
+            qualities.append(quality)
+            return b"\xff\xd8\xff\xe0fakejpeg"
+
+    page = _QualityPage({}, "https://news.ycombinator.com/")
+    client = _RecordingClient()
+    streamer = FrameStreamer(page, client, interval_ms=300, quality=50)
+    streamer.start()
+    await asyncio.sleep(0.35)
+    await streamer.stop()
+
+    assert qualities and all(q == 50 for q in qualities)
+    # ~300 ms cadence over ~350 ms => roughly 1-2 frames, never a tight spin.
+    assert 1 <= len(client.frames) <= 3
+
+
+def test_default_frame_config_matches_contract():
+    # CONTRACTS s7 + A3 brief: 300 ms cadence, quality 50, viewport 1280x720.
+    from agent_runner.config import RunnerConfig
+
+    cfg = RunnerConfig()
+    assert cfg.frame_interval_ms == 300
+    assert cfg.frame_quality == 50
+    assert cfg.viewport == (1280, 720)
 
 
 @pytest.mark.asyncio

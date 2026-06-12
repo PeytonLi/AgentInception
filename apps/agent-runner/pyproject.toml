@@ -34,3 +34,8 @@ packages = ["agent_runner"]
 asyncio_mode = "auto"
 testpaths = ["tests"]
 filterwarnings = ["ignore::DeprecationWarning"]
+markers = [
+    "gpu: requires the real inference engine on a GPU box (set INFERENCE_URL)",
+    "slow: end-to-end run against the real engine and/or a live browser",
+    "clickhouse: requires a reachable ClickHouse (set CLICKHOUSE_URL)",
+]
