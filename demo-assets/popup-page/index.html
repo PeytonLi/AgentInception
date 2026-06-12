@@ -181,8 +181,11 @@
         </div>
     </div>
 
-    <!-- Cookie consent modal -->
-    <div class="cookie-modal-overlay" id="cookie-overlay" data-testid="cookie-modal-overlay">
+    <!-- Cookie consent modal. data-popup-state transitions: pending -> open -> dismissed -->
+    <div class="cookie-modal-overlay"
+         id="cookie-overlay"
+         data-testid="cookie-modal-overlay"
+         data-popup-state="pending">
         <div class="cookie-modal" data-testid="cookie-modal">
             <h2>We Value Your Privacy</h2>
             <p>
@@ -190,30 +193,68 @@
                 and personalize content. By clicking "Accept All Cookies", you consent to our use of cookies.
             </p>
             <div class="cookie-buttons">
-                <button id="accept-cookies">Accept All Cookies</button>
-                <button id="reject-cookies">Reject All</button>
+                <button id="accept-cookies" data-testid="cookie-accept">Accept All Cookies</button>
+                <button id="reject-cookies" data-testid="cookie-reject">Reject All</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Show cookie modal after 300ms delay
-        setTimeout(function() {
-            const overlay = document.getElementById('cookie-overlay');
-            overlay.classList.add('active');
-        }, 300);
+        // Popup lifecycle: 'pending' (loaded but not yet shown) ->
+        //                  'open'    (modal visible)            ->
+        //                  'dismissed' (user accepted or rejected)
+        //
+        // Exposed on window.__popupModal so the agent-runner chaos test and
+        // Playwright assertions have a deterministic signal independent of
+        // CSS class names. Also dispatches a `popup:dismiss` CustomEvent
+        // with detail.via in {'accept', 'reject'}.
+        (function () {
+            var overlay = document.getElementById('cookie-overlay');
 
-        // Handle accept button
-        document.getElementById('accept-cookies').addEventListener('click', function() {
-            const overlay = document.getElementById('cookie-overlay');
-            overlay.classList.remove('active');
-        });
+            function setState(next) {
+                overlay.setAttribute('data-popup-state', next);
+            }
 
-        // Handle reject button
-        document.getElementById('reject-cookies').addEventListener('click', function() {
-            const overlay = document.getElementById('cookie-overlay');
-            overlay.classList.remove('active');
-        });
+            function show() {
+                overlay.classList.add('active');
+                setState('open');
+            }
+
+            function dismiss(via) {
+                if (overlay.getAttribute('data-popup-state') === 'dismissed') {
+                    return;
+                }
+                overlay.classList.remove('active');
+                setState('dismissed');
+                var detail = { via: via || 'unknown' };
+                overlay.dispatchEvent(new CustomEvent('popup:dismiss', {
+                    detail: detail,
+                    bubbles: true,
+                }));
+            }
+
+            window.__popupModal = {
+                isOpen: function () {
+                    return overlay.getAttribute('data-popup-state') === 'open';
+                },
+                state: function () {
+                    return overlay.getAttribute('data-popup-state');
+                },
+                show: show,
+                dismiss: dismiss,
+            };
+
+            // Preserve the 300ms scripted delay: real cookie banners fade
+            // in after a tick, and the chaos test must tolerate that.
+            setTimeout(show, 300);
+
+            document.getElementById('accept-cookies').addEventListener('click', function () {
+                dismiss('accept');
+            });
+            document.getElementById('reject-cookies').addEventListener('click', function () {
+                dismiss('reject');
+            });
+        })();
     </script>
 </body>
 </html>

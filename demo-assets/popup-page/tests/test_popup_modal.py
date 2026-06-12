@@ -107,3 +107,116 @@ def test_reject_button_also_dismisses(http_server):
             expect(overlay).to_be_hidden(timeout=1_000)
         finally:
             browser.close()
+
+
+def test_popup_lifecycle_pending_open_dismissed(http_server):
+    """The data-popup-state attribute transitions pending -> open -> dismissed,
+    and window.__popupModal.state() mirrors it. This is the deterministic
+    signal P3's chaos test keys off, independent of any CSS classes."""
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1280, "height": 720})
+            # Intercept the page right at load (before the 300ms timer fires)
+            # so we can observe the 'pending' state.
+            page.goto(http_server, wait_until="domcontentloaded")
+
+            # Allow the script tag to execute and register window.__popupModal.
+            page.wait_for_function("typeof window.__popupModal === 'object'")
+
+            initial_state = page.evaluate("window.__popupModal.state()")
+            assert initial_state == "pending", f"expected pending, got {initial_state}"
+            assert page.evaluate("window.__popupModal.isOpen()") is False
+
+            # Wait for the scripted 300ms delay to elevate state to 'open'.
+            page.wait_for_function(
+                "window.__popupModal.state() === 'open'", timeout=2_000
+            )
+            assert page.evaluate("window.__popupModal.isOpen()") is True
+            overlay = page.locator('[data-testid="cookie-modal-overlay"]')
+            assert overlay.get_attribute("data-popup-state") == "open"
+
+            # Accept -> dismissed.
+            page.locator('[data-testid="cookie-accept"]').click()
+            page.wait_for_function(
+                "window.__popupModal.state() === 'dismissed'", timeout=1_000
+            )
+            assert page.evaluate("window.__popupModal.isOpen()") is False
+            assert overlay.get_attribute("data-popup-state") == "dismissed"
+        finally:
+            browser.close()
+
+
+def test_popup_dismiss_event_fires_with_via(http_server):
+    """The 'popup:dismiss' CustomEvent fires with detail.via set to 'accept'
+    or 'reject' depending on which button was clicked. P3 uses this to
+    confirm the popup bank's action_hint was actually executed."""
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1280, "height": 720})
+            page.goto(http_server)
+
+            # Listen for the custom event on window (it bubbles) and stash the
+            # detail on a global so we can poll it from Python.
+            page.evaluate(
+                """
+                () => {
+                    window.__lastDismiss = null;
+                    window.addEventListener('popup:dismiss', (e) => {
+                        window.__lastDismiss = e.detail;
+                    });
+                }
+                """
+            )
+
+            overlay = page.locator('[data-testid="cookie-modal-overlay"]')
+            expect(overlay).to_be_visible(timeout=2_000)
+
+            page.locator('[data-testid="cookie-reject"]').click()
+            page.wait_for_function(
+                "window.__lastDismiss && window.__lastDismiss.via === 'reject'",
+                timeout=1_000,
+            )
+            detail = page.evaluate("window.__lastDismiss")
+            assert detail == {"via": "reject"}, f"unexpected detail: {detail!r}"
+        finally:
+            browser.close()
+
+
+def test_popup_dismiss_is_idempotent(http_server):
+    """Calling dismiss() twice does not fire a second event or change state."""
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1280, "height": 720})
+            page.goto(http_server)
+
+            overlay = page.locator('[data-testid="cookie-modal-overlay"]')
+            expect(overlay).to_be_visible(timeout=2_000)
+
+            # Track how many dismiss events fire.
+            page.evaluate(
+                """
+                () => {
+                    window.__dismissCount = 0;
+                    window.addEventListener('popup:dismiss', () => {
+                        window.__dismissCount++;
+                    });
+                }
+                """
+            )
+
+            # First dismiss.
+            page.locator('[data-testid="cookie-accept"]').click()
+            page.wait_for_function(
+                "window.__popupModal.state() === 'dismissed'", timeout=1_000
+            )
+            assert page.evaluate("window.__dismissCount") == 1
+
+            # Second dismiss (programmatic) — should be a no-op.
+            page.evaluate("window.__popupModal.dismiss('accept')")
+            assert page.evaluate("window.__dismissCount") == 1
+            assert page.evaluate("window.__popupModal.state()") == "dismissed"
+        finally:
+            browser.close()

@@ -1,0 +1,3 @@
+# DOM snapshots captured by scripts/capture_dom.py
+# Re-run before a demo to get fresh HN content.
+# .html files are the raw page content; .meta.json has structural hashes.
