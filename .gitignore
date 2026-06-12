@@ -1,0 +1,17 @@
+# Local tooling
+.gstack/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Compiled bank artifacts (transfer via scp; manifest is committed)
+banks/*.bin
+
+# Dependencies & caches
+node_modules/
+__pycache__/
+*.pyc
+.turbo/
+.next/
