@@ -27,3 +27,6 @@ packages = ["src/inference_engine"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 filterwarnings = ["ignore::DeprecationWarning:transformers.*"]
+markers = [
+    "gpu: real Llama-3.1-8B + real-bank validation; auto-skipped without CUDA (P2)",
+]
