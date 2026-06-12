@@ -11,9 +11,15 @@ panel driven live by the inference engine's `/ws/events` feed (CONTRACTS.md §7)
 +------------------------------+------------------------------+
 | LAYER INJECTION GRAPH        | LOGS & MATH                  |
 |  32 rows; 8/12/16/20 light   |  scrolling logs + K*/V* eqn  |
-|  up on layer_injection       |  + KV-ratio badge            |
+|  up on layer_injection       |  + real num_slots / DOM toks |
 +------------------------------+------------------------------+
 ```
+
+When the engine link drops mid-run, a **RECONNECTING** banner appears and the
+last frame/metrics are held (never a frozen blank panel); accumulated state
+survives the reconnect.
+
+![Live console](../../docs/handoff/phase-2/notes/p4-console-shot.png)
 
 ## Develop
 
@@ -37,7 +43,18 @@ For the real demo, the **only** change is `NEXT_PUBLIC_INFERENCE_WS` ->
 
 ```bash
 pnpm test        # vitest: pure reducer + reconnect/backoff (the logic core)
-pnpm test:e2e    # playwright smoke: 4 panels render, layers light up < 2s
+pnpm test:e2e    # playwright: smoke + full recorded-run replay + engine-restart
+```
+
+The e2e suite replays a **recorded real-event fixture** (`e2e/fixtures/real-run.json`,
+a full HN mi-mode run mirroring CONTRACTS §7) over a fake WebSocket, so the whole
+dashboard is exercised end-to-end in CI with no GPU and no backend. It also drives
+the demo still committed at `docs/handoff/phase-2/notes/p4-console-shot.png`.
+
+Regenerate the fixture + frames (renders viewport JPEGs with Chromium):
+
+```bash
+node e2e/fixtures/generate-fixture.mjs
 ```
 
 ## Architecture
