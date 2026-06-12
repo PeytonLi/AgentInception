@@ -2,7 +2,7 @@
 
 import pytest
 
-from ghost_shared.page_key import page_key
+from agentinception_shared.page_key import page_key
 
 HN_FRONT_CASES = [
     "https://news.ycombinator.com",

@@ -1,6 +1,6 @@
 # agent-runner (A3)
 
-The Playwright driver loop for GhostBrowser OS. It walks the demo task, calls
+The Playwright driver loop for AgentInception. It walks the demo task, calls
 the inference engine's `POST /api/v1/step` each iteration, executes the returned
 Action, streams viewport frames, and produces the token metrics that power the
 demo's comparison chart. One loop, two modes: `baseline` and `mi`.
@@ -50,7 +50,7 @@ Flags: `--headed` (visible browser), `--no-frames`, `--no-clickhouse`,
 | `inference_client.py` | `httpx` client for `/api/v1/step` + `/internal/frame`. |
 | `frames.py` | Background 300 ms viewport streamer (fire-and-forget). |
 | `metrics.py` | Cumulative `visible`/`baseline` token counters. |
-| `steplog.py` | `agent_steps` logging via `ghost_shared.storage` (degrades to in-memory). |
+| `steplog.py` | `agent_steps` logging via `agentinception_shared.storage` (degrades to in-memory). |
 | `cli.py` | `argparse` entrypoint wiring it all together. |
 
 ### Design notes

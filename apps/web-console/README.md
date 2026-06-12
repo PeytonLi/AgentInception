@@ -1,6 +1,6 @@
 # web-console (Agent A4)
 
-Judge-facing 4-panel dashboard for **GhostBrowser OS**. Single dark page, every
+Judge-facing 4-panel dashboard for **AgentInception**. Single dark page, every
 panel driven live by the inference engine's `/ws/events` feed (CONTRACTS.md §7).
 
 ```

@@ -1,6 +1,6 @@
 """agent_steps logging. CONTRACTS.md s5.
 
-Wraps ``ghost_shared.storage.log_step``. Always keeps an in-memory copy of each
+Wraps ``agentinception_shared.storage.log_step``. Always keeps an in-memory copy of each
 row (used by tests and end-of-run summaries) and best-effort writes to
 ClickHouse when a client is available. A missing/unreachable ClickHouse
 degrades to in-memory only - it must never crash a demo run.
@@ -24,7 +24,7 @@ class StepLogger:
         if not enabled:
             return cls(None)
         try:
-            from ghost_shared import storage
+            from agentinception_shared import storage
 
             client = storage.get_client(url)
             client.command("SELECT 1")
@@ -63,7 +63,7 @@ class StepLogger:
         self.rows.append(row)
         if self._client is not None:
             try:
-                from ghost_shared import storage
+                from agentinception_shared import storage
 
                 storage.log_step(self._client, **row)
             except Exception as exc:  # pragma: no cover - depends on env
@@ -78,7 +78,7 @@ class StepLogger:
         """
         if self._client is None:
             return [r for r in self.rows if r["session_id"] == session_id]
-        from ghost_shared import storage
+        from agentinception_shared import storage
 
         result = self._client.query(
             "SELECT session_id, step, mode, url, page_key, action_json, "

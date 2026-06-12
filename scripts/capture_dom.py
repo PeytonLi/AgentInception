@@ -30,7 +30,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "packages" / "shared-py"))
 
-from ghost_shared.dom_hash import dom_structural_hash  # noqa: E402
+from agentinception_shared.dom_hash import dom_structural_hash  # noqa: E402
 
 DEFAULT_OUT = REPO_ROOT / "demo-assets" / "snapshots"
 HN_FRONT_URL = "https://news.ycombinator.com/"
@@ -61,7 +61,7 @@ def _capture_page(url: str, *, timeout_ms: int = 30000) -> str:
                 user_agent=(
                     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                     "AppleWebKit/537.36 (KHTML, like Gecko) "
-                    "Chrome/122.0 Safari/537.36 GhostBrowserCapture"
+                    "Chrome/122.0 Safari/537.36 AgentInceptionCapture"
                 )
             )
             page = context.new_page()

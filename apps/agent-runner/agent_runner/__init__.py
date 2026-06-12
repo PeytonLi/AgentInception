@@ -1,4 +1,4 @@
-"""GhostBrowser OS - agent-runner (A3).
+"""AgentInception - agent-runner (A3).
 
 The Playwright-driven driver loop. Each iteration it:
   - reads the current page URL -> page_key(),

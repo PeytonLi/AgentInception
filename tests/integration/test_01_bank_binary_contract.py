@@ -11,7 +11,7 @@ import os
 import numpy as np
 from conftest import REQUIRED_PAGE_KEYS
 
-from ghost_shared import bank_io, constants
+from agentinception_shared import bank_io, constants
 
 
 def test_all_bank_files_exist(banks_dir):

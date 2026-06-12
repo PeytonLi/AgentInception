@@ -1,9 +1,9 @@
--- GhostBrowser OS — ClickHouse schema. CONTRACTS.md §5.
+-- AgentInception — ClickHouse schema. CONTRACTS.md §5.
 -- Applied idempotently by scripts/ch_init.sh.
 
-CREATE DATABASE IF NOT EXISTS ghostbrowser;
+CREATE DATABASE IF NOT EXISTS agentinception;
 
-CREATE TABLE IF NOT EXISTS ghostbrowser.latent_memory_banks (
+CREATE TABLE IF NOT EXISTS agentinception.latent_memory_banks (
     page_key            String,
     domain              String,
     layer_id            UInt32,
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS ghostbrowser.latent_memory_banks (
 ) ENGINE = MergeTree()
 ORDER BY (page_key, layer_id);
 
-CREATE TABLE IF NOT EXISTS ghostbrowser.agent_steps (
+CREATE TABLE IF NOT EXISTS agentinception.agent_steps (
     session_id      String,
     step            UInt32,
     mode            Enum8('baseline' = 1, 'mi' = 2),

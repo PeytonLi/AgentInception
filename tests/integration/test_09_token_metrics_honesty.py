@@ -102,7 +102,7 @@ async def test_kv_savings_ratio_matches_readme_formula(banks_dir):
     from inference_engine.config import NUM_LAYERS
     from inference_engine.server import create_app
 
-    from ghost_shared.constants import SELECTED_LAYERS
+    from agentinception_shared.constants import SELECTED_LAYERS
 
     reg = BankRegistry.from_manifest_dir(str(banks_dir))
     hn_front = reg.get("hn:front")

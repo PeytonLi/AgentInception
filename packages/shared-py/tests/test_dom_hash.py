@@ -1,6 +1,6 @@
 """CONTRACTS.md §3 — structural hash ignores text/scripts/styles, keeps tags+classes."""
 
-from ghost_shared.dom_hash import dom_structural_hash
+from agentinception_shared.dom_hash import dom_structural_hash
 
 
 def test_text_changes_do_not_affect_hash():

@@ -1,6 +1,6 @@
 # Phase 2 - "Make It Real and Prove It"
 
-**Project:** AgentInception / GhostBrowser OS
+**Project:** AgentInception / AgentInception
 **Predecessor:** `docs/handoff/` (Phase 1). Phase 1 is **done as code**; this directory is the next sprint.
 **Status of the repo today:** fully scaffolded, every Phase-1 build agent (A1-A4, B1, B2) merged to `main`. **But it has never run on a GPU, and the demo banks are fake.**
 

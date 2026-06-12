@@ -11,13 +11,13 @@ from pathlib import Path
 from typing import Optional
 
 import torch
-from ghost_shared import bank_io
+from agentinception_shared import bank_io
 
 logger = logging.getLogger("inference_engine.banks")
 
 BANKS_QUERY = (
     "SELECT page_key, layer_id, num_slots, k_bank, v_bank "
-    "FROM ghostbrowser.latent_memory_banks"
+    "FROM agentinception.latent_memory_banks"
 )
 
 LayerBanks = dict[int, tuple[torch.Tensor, torch.Tensor]]

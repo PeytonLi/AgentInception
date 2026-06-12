@@ -1,7 +1,7 @@
-"""A3 <-> shared-py wiring: StepLogger persists agent_steps via ghost_shared.
+"""A3 <-> shared-py wiring: StepLogger persists agent_steps via agentinception_shared.
 
 These tests exercise the cross-component seam (CONTRACTS s5) through the public
-StepLogger interface, so they catch any drift in ghost_shared.storage.log_step
+StepLogger interface, so they catch any drift in agentinception_shared.storage.log_step
 (table name, column order, value coercion) - the kind of breakage a branch
 merge can introduce silently.
 """
@@ -50,7 +50,7 @@ def test_steplog_forwards_to_clickhouse_with_contract_columns():
     assert len(logger.rows) == 1  # always kept in-memory too
     assert len(client.inserts) == 1
     table, rows, columns = client.inserts[0]
-    assert table == "ghostbrowser.agent_steps"
+    assert table == "agentinception.agent_steps"
     assert columns == [
         "session_id", "step", "mode", "url", "page_key",
         "action_json", "visible_tokens", "baseline_tokens", "bank_found",

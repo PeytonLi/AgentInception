@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import sys
 
-from ghost_shared import bank_io, storage
+from agentinception_shared import bank_io, storage
 
 
 def main(banks_dir: str) -> int:

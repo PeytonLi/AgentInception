@@ -1,9 +1,9 @@
-# GhostBrowser OS — ClickHouse. CONTRACTS.md §5/§9.
+# AgentInception — ClickHouse. CONTRACTS.md §5/§9.
 # Brought up idempotently by scripts/ch_init.sh.
 services:
   clickhouse:
     image: clickhouse/clickhouse-server:24.8
-    container_name: ghostbrowser-clickhouse
+    container_name: agentinception-clickhouse
     ports:
       - "8123:8123" # HTTP interface (CLICKHOUSE_URL)
       - "9000:9000" # native protocol
@@ -12,7 +12,7 @@ services:
         soft: 262144
         hard: 262144
     environment:
-      CLICKHOUSE_DB: ghostbrowser
+      CLICKHOUSE_DB: agentinception
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
     volumes:
       - clickhouse-data:/var/lib/clickhouse
@@ -25,4 +25,4 @@ services:
 
 volumes:
   clickhouse-data:
-    name: ghostbrowser-clickhouse-data
+    name: agentinception-clickhouse-data

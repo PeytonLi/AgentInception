@@ -1,4 +1,4 @@
-"""Orchestrator: DOM extract -> Haiku summary -> Llama encode -> bank IO.
+"""Orchestrator: DOM extract -> cloud summary -> Llama encode -> bank IO.
 
 This module exposes `run_compile()` for both the CLI and tests. The three
 heavy collaborators (DOM loader, summarizer, encoder, model loader) are looked
@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ghost_shared import bank_io
+from agentinception_shared import bank_io
 
 from .dom_extract import domain_of, load_dom
 from .encoder import encode_summary, load_model_and_tokenizer
@@ -25,9 +25,13 @@ class CompileOptions:
     out_dir: str
     url: str | None = None
     html: str | None = None
-    selected_layers: list[int] | None = None  # default: ghost_shared SELECTED_LAYERS
-    anthropic_client: Any = None              # for tests
-    model: Any = None                         # pre-loaded model (skips load_model_and_tokenizer)
+    selected_layers: list[int] | None = None  # default: agentinception_shared SELECTED_LAYERS
+    anthropic_client: Any = None  # for tests (deprecated; use summarizer_client)
+    summarizer_client: Any = None  # pre-built client for the summarizer
+    summarizer_provider: str | None = (
+        None  # 'anthropic' or 'deepseek' (auto-detected if None)
+    )
+    model: Any = None  # pre-loaded model (skips load_model_and_tokenizer)
     tokenizer: Any = None
 
 
@@ -52,12 +56,13 @@ def run_compile(opts: CompileOptions) -> dict[str, Any]:
     canonical_url = _resolve_url_for_domain(opts, extract.url)
     domain = domain_of(canonical_url) or domain_of(extract.url)
 
-    # 2. Haiku summary.
+    # 2. Summarize DOM via cloud LLM (Haiku or DeepSeek).
     summary = summarize_dom(
         dom_text=extract.text,
         url=canonical_url,
         page_key=opts.page_key,
-        client=opts.anthropic_client,
+        client=opts.summarizer_client or opts.anthropic_client,
+        provider=opts.summarizer_provider,
     )
 
     # Persist the summary (judges may want to read it).

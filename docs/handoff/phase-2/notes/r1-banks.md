@@ -25,7 +25,7 @@ DOM snapshot → Haiku summary → Llama-3.1-8B forward pass → pre-RoPE K/V ba
 
 ```bash
 # On the P1 GPU box:
-cd ~/ghostbrowser-os
+cd ~/agentinception
 
 # 1. Compile all 3 page types (model loaded once)
 python scripts/compile_real_banks.py

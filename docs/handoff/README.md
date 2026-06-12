@@ -1,6 +1,6 @@
-# GhostBrowser OS — Handoff & Build Plan
+# AgentInception — Handoff & Build Plan
 
-**Project:** AgentInception / GhostBrowser OS — a web agent that replaces verbose DOM text in the prompt with pre-computed latent KV banks injected at selected transformer layers, based on Memory Inception (MI).
+**Project:** AgentInception / AgentInception — a web agent that replaces verbose DOM text in the prompt with pre-computed latent KV banks injected at selected transformer layers, based on Memory Inception (MI).
 
 **Paper:** [arXiv:2605.06225 — Memory Inception: Latent-Space KV Cache Manipulation for Steering LLMs](https://arxiv.org/abs/2605.06225) (Liu et al., 2026). Read §3 and Appendix B.1/C/G.2 before touching inference code.
 

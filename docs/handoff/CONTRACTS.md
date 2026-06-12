@@ -25,7 +25,7 @@ TRANSFORMERS_PIN = "transformers==4.46.*"  # custom attention is version-sensiti
 ## 2. Repo layout
 
 ```
-ghostbrowser-os/
+agentinception/
 ├── apps/
 │   ├── inference-engine/      # Python FastAPI + MI attention        (A1)
 │   ├── agent-runner/          # Python Playwright loop               (A3)
@@ -51,7 +51,7 @@ ghostbrowser-os/
 Banks are looked up by **page type**, not exact DOM hash (HN comment counts vary per article; exact hashes would never match).
 
 ```python
-# packages/shared-py/ghost_shared/page_key.py — THE one implementation
+# packages/shared-py/agentinception_shared/page_key.py — THE one implementation
 def page_key(url: str) -> str:
     # news.ycombinator.com/ or /news?p=N      -> "hn:front"
     # news.ycombinator.com/item?id=*          -> "hn:item"
@@ -93,16 +93,16 @@ One bank = one page type = K and V tensors for each selected layer.
 }
 ```
 
-The serializer/deserializer pair lives in `packages/shared-py/ghost_shared/bank_io.py`. B1 writes with it, A1/A2 read with it. Do not hand-roll a second implementation.
+The serializer/deserializer pair lives in `packages/shared-py/agentinception_shared/bank_io.py`. B1 writes with it, A1/A2 read with it. Do not hand-roll a second implementation.
 
 ---
 
 ## 5. ClickHouse
 
 ```sql
-CREATE DATABASE IF NOT EXISTS ghostbrowser;
+CREATE DATABASE IF NOT EXISTS agentinception;
 
-CREATE TABLE IF NOT EXISTS ghostbrowser.latent_memory_banks (
+CREATE TABLE IF NOT EXISTS agentinception.latent_memory_banks (
     page_key            String,
     domain              String,
     layer_id            UInt32,
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS ghostbrowser.latent_memory_banks (
 ) ENGINE = MergeTree()
 ORDER BY (page_key, layer_id);
 
-CREATE TABLE IF NOT EXISTS ghostbrowser.agent_steps (
+CREATE TABLE IF NOT EXISTS agentinception.agent_steps (
     session_id      String,
     step            UInt32,
     mode            Enum8('baseline' = 1, 'mi' = 2),

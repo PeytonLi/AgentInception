@@ -8,7 +8,7 @@ These tests verify the exact paper recipe (Eq. 6):
 The contract's wire shape is [8, S, 128] (Llama-3.1-8B GQA). Here we build a tiny
 model with num_kv_heads=2, head_dim=16; the encoder must reshape to
 [model.num_key_value_heads, S, model.head_dim]. The wire-shape constraint is
-enforced separately by ghost_shared.bank_io.to_bytes() at save time.
+enforced separately by agentinception_shared.bank_io.to_bytes() at save time.
 """
 
 from __future__ import annotations

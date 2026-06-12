@@ -71,7 +71,7 @@ class FrameRequest(BaseModel):
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="GhostBrowser mock inference")
+    app = FastAPI(title="AgentInception mock inference")
     app.state.subscribers = set()
     app.state.calls = {}  # session_id -> call count
 

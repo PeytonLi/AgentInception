@@ -60,9 +60,9 @@ import numpy as np
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "packages" / "shared-py"))
 
-from ghost_shared import bank_io  # noqa: E402
-from ghost_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS  # noqa: E402
-from ghost_shared.dom_hash import dom_structural_hash  # noqa: E402
+from agentinception_shared import bank_io  # noqa: E402
+from agentinception_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS  # noqa: E402
+from agentinception_shared.dom_hash import dom_structural_hash  # noqa: E402
 
 # (page_key, domain, num_slots, seed, summary, source-html-for-hash)
 DEMO_SPECS = [

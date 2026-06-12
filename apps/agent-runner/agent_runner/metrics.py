@@ -20,7 +20,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 try:
-    from ghost_shared.constants import NUM_LAYERS
+    from agentinception_shared.constants import NUM_LAYERS
 except Exception:  # pragma: no cover - shared-py always present in the monorepo
     NUM_LAYERS = 32
 

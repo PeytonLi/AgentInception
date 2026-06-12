@@ -47,7 +47,7 @@ def create_app(
             logger.info("startup complete: banks=%s", state["registry"].page_keys)
         yield
 
-    app = FastAPI(title="GhostBrowser OS inference engine", lifespan=lifespan)
+    app = FastAPI(title="AgentInception inference engine", lifespan=lifespan)
 
     @app.get("/healthz")
     async def healthz() -> dict:

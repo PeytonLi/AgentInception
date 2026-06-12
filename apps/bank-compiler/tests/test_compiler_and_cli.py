@@ -85,7 +85,7 @@ def test_compile_writes_bank_files_summary_and_manifest(tmp_path: Path, monkeypa
 
 def test_roundtrip_via_shared_io(tmp_path: Path):
     """save_bank then load_bank produces byte-identical arrays."""
-    from ghost_shared import bank_io
+    from agentinception_shared import bank_io
 
     num_slots = 7
     banks = _wire_shaped_banks(num_slots)
@@ -121,7 +121,7 @@ def test_validate_reports_problems(tmp_path: Path, capsys):
 
 def test_validate_passes_on_good_dir(tmp_path: Path, capsys):
     from bank_compiler.cli import validate_dir
-    from ghost_shared import bank_io
+    from agentinception_shared import bank_io
 
     num_slots = 5
     banks = _wire_shaped_banks(num_slots)

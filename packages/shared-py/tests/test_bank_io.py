@@ -5,9 +5,9 @@ import json
 import numpy as np
 import pytest
 
-from ghost_shared import bank_io
-from ghost_shared.bank_io import BankFormatError
-from ghost_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS
+from agentinception_shared import bank_io
+from agentinception_shared.bank_io import BankFormatError
+from agentinception_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS
 
 
 def _rand_bank(num_slots=16, seed=0):

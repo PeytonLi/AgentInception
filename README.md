@@ -1,4 +1,4 @@
-# GhostBrowser OS
+# AgentInception
 
 A web agent that replaces verbose DOM text in the prompt with pre-computed
 latent **KV banks** injected at selected transformer layers, based on Memory

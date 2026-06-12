@@ -14,7 +14,7 @@ import threading
 from typing import Protocol
 
 try:
-    from ghost_shared.constants import MODEL_ID
+    from agentinception_shared.constants import MODEL_ID
 except Exception:  # pragma: no cover - shared-py always present in the monorepo
     MODEL_ID = "meta-llama/Llama-3.1-8B-Instruct"
 

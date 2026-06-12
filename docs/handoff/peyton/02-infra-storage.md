@@ -18,7 +18,7 @@ Stand up everything the other agents assume exists: the monorepo skeleton, the s
 - Root `.gitignore`: `banks/*.bin`, `.env*`, model caches, `node_modules`, `__pycache__`.
 - Commit and push immediately. Tell the team.
 
-### 2. `packages/shared-py/ghost_shared/` — the shared contract code
+### 2. `packages/shared-py/agentinception_shared/` — the shared contract code
 
 - `page_key.py`: implement exactly CONTRACTS §3 (with the URL pattern table as data, unit-tested against real HN URLs incl. `news.ycombinator.com/news?p=2`).
 - `bank_io.py`: `save_bank(dir, page_key, banks: dict[int, tuple[np.ndarray, np.ndarray]], meta) -> manifest entry` and `load_bank(...)`, plus `to_bytes`/`from_bytes` with shape validation that **raises** on wrong dtype/shape. This is the single (de)serialization implementation for the whole project (CONTRACTS §4).

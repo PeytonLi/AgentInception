@@ -14,6 +14,7 @@ HIDDEN_SIZE = 4096
 BANK_DTYPE = "float32"  # serialization dtype (model runs bf16; banks stored f32)
 SUMMARY_WORDS = (200, 400)  # Haiku DOM summary target length
 HAIKU_MODEL = "claude-haiku-4-5-20251001"
+DEEPSEEK_MODEL = "deepseek-chat"  # fallback summarizer when ANTHROPIC_API_KEY is absent
 TRANSFORMERS_PIN = "transformers==4.46.*"
 
 # Page keys produced by page_key().

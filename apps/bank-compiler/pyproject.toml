@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Offline KV-bank compiler: DOM -> Haiku summary -> Llama -> canonical pre-RoPE banks. (B1)"
 requires-python = ">=3.10"
 dependencies = [
-    "ghost-shared",
+    "agentinception-shared",
     "numpy>=1.24",
 ]
 
@@ -17,7 +17,7 @@ runtime = [
     "transformers==4.46.*",
     "torch",
     "accelerate",
-    "anthropic",
+    "openai>=1.0",
     "playwright",
     "beautifulsoup4",
 ]

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# GhostBrowser OS / AgentInception — demo launcher (P5, hardened).
+# AgentInception / AgentInception — demo launcher (P5, hardened).
 # Brings the full stack up in dependency order with preflight checks and
 # fail-fast health polling: ClickHouse -> upload banks -> engine -> health
 # (asserts all 3 banks preloaded) -> console -> ready-to-paste runner commands.
@@ -95,8 +95,8 @@ _step "Starting inference engine"
 if [[ -n "$EC2_IP" ]]; then
   echo "  EC2 target: $EC2_IP — run the engine on the GPU box, e.g.:"
   echo ""
-  echo "    tmux new-session -d -s ghostbrowser \\"
-  echo "      'cd ghostbrowser-os/apps/inference-engine && python -m inference_engine'"
+  echo "    tmux new-session -d -s agentinception \\"
+  echo "      'cd agentinception/apps/inference-engine && python -m inference_engine'"
   echo ""
   echo -n "  Waiting for engine at $INFERENCE_URL ... "
 else
@@ -161,7 +161,7 @@ DEFAULT_TASK="Find the top story about AI on the Hacker News front page (scan up
 
 echo ""
 echo "=========================================================="
-echo "  GhostBrowser OS Demo Stack — READY"
+echo "  AgentInception Demo Stack — READY"
 echo "=========================================================="
 echo ""
 echo "  Engine:   $INFERENCE_URL"

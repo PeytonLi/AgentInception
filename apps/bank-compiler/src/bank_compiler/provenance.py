@@ -11,7 +11,7 @@ about the key silently ignore it.
 
 from __future__ import annotations
 
-from ghost_shared import bank_io
+from agentinception_shared import bank_io
 
 
 def tag_synthetic(

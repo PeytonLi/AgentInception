@@ -29,7 +29,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "packages" / "shared-py"))
 
-from ghost_shared.constants import NUM_LAYERS, SELECTED_LAYERS  # noqa: E402
+from agentinception_shared.constants import NUM_LAYERS, SELECTED_LAYERS  # noqa: E402
 
 DATASET_PATH = REPO_ROOT / "demo-assets" / "token_honesty" / "token_counts.json"
 HONEST_BAND = (20, 80)

@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from ghost_shared import bank_io, storage
+from agentinception_shared import bank_io, storage
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 

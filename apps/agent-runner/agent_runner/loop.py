@@ -16,7 +16,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-from ghost_shared.page_key import page_key as compute_page_key
+from agentinception_shared.page_key import page_key as compute_page_key
 
 from .actions import Action, parse_action
 from .browser import PageDriver

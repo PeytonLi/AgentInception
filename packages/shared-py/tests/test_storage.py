@@ -8,8 +8,8 @@ import os
 import numpy as np
 import pytest
 
-from ghost_shared import storage
-from ghost_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS
+from agentinception_shared import storage
+from agentinception_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS
 
 
 def _client_or_skip():

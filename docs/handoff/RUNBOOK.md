@@ -1,4 +1,4 @@
-# Demo Runbook — GhostBrowser OS / AgentInception
+# Demo Runbook — AgentInception / AgentInception
 
 **Owner:** P5 integration  **Last rehearsed:** see `KNOWN_ISSUES.md`
 **Hardware target:** AWS g5.2xlarge (1× A10G 24 GB) + local browser machine
@@ -35,7 +35,7 @@ python scripts/upload_banks.py banks/
 
 ```bash
 # 1. Clone and cd
-git clone <repo-url> ghostbrowser-os && cd ghostbrowser-os
+git clone <repo-url> agentinception && cd agentinception
 
 # 2. Set secrets
 export HF_TOKEN="hf_..."
@@ -59,8 +59,8 @@ The script will:
 **If engine is on a remote GPU box:**
 ```bash
 # On the EC2 GPU box:
-cd ghostbrowser-os
-tmux new-session -d -s ghostbrowser \
+cd agentinception
+tmux new-session -d -s agentinception \
   'cd apps/inference-engine && python -m inference_engine'
 
 # On the local demo machine:

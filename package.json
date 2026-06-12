@@ -1,8 +1,8 @@
 {
-  "name": "ghostbrowser-os",
+  "name": "agentinception",
   "private": true,
   "version": "0.1.0",
-  "description": "GhostBrowser OS — web agent with pre-computed latent KV banks (Memory Inception)",
+  "description": "AgentInception — web agent with pre-computed latent KV banks (Memory Inception)",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",

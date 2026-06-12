@@ -103,7 +103,7 @@ def banks_dir(repo_root: Path) -> Path:
 
 @pytest.fixture(scope="session")
 def manifest(banks_dir: Path) -> dict:
-    from ghost_shared import bank_io
+    from agentinception_shared import bank_io
 
     return bank_io.read_manifest(str(banks_dir))
 

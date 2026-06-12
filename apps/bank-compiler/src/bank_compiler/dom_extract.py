@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup, Comment
 
-from ghost_shared.dom_hash import dom_structural_hash
+from agentinception_shared.dom_hash import dom_structural_hash
 
 
 @dataclass(frozen=True)
@@ -67,7 +67,7 @@ def extract_from_url(url: str, *, timeout_ms: int = 30000) -> DomExtract:
                 user_agent=(
                     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                     "AppleWebKit/537.36 (KHTML, like Gecko) "
-                    "Chrome/122.0 Safari/537.36 GhostBrowserCompiler"
+                    "Chrome/122.0 Safari/537.36 AgentInceptionCompiler"
                 )
             )
             page = context.new_page()

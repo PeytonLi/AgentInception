@@ -1,4 +1,4 @@
-"""Make ghost_shared importable when running these tests from any cwd."""
+"""Make agentinception_shared importable when running these tests from any cwd."""
 from __future__ import annotations
 
 import sys

@@ -18,7 +18,7 @@ from .bank_io import from_bytes as _from_bytes
 from .bank_io import to_bytes as _to_bytes
 
 DEFAULT_URL = "http://localhost:8123"
-DATABASE = "ghostbrowser"
+DATABASE = "agentinception"
 BANKS_TABLE = f"{DATABASE}.latent_memory_banks"
 STEPS_TABLE = f"{DATABASE}.agent_steps"
 

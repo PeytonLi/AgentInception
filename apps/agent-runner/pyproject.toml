@@ -5,10 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "agent-runner"
 version = "0.1.0"
-description = "GhostBrowser OS agent runner: Playwright loop, baseline + mi modes, token metrics."
+description = "AgentInception agent runner: Playwright loop, baseline + mi modes, token metrics."
 requires-python = ">=3.10"
 dependencies = [
-    "ghost-shared",
+    "agentinception-shared",
     "playwright>=1.40",
     "httpx>=0.27",
 ]

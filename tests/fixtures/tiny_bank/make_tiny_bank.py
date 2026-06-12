@@ -11,8 +11,8 @@ from pathlib import Path
 
 import numpy as np
 
-from ghost_shared import bank_io
-from ghost_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS
+from agentinception_shared import bank_io
+from agentinception_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS
 
 NUM_SLOTS = 16
 PAGE_KEY = "hn:front"

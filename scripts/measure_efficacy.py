@@ -100,7 +100,7 @@ def main() -> int:
         print("ERROR: torch/transformers not installed.", file=sys.stderr)
         return 1
 
-    from ghost_shared import bank_io
+    from agentinception_shared import bank_io
     from bank_compiler.encoder import load_model_and_tokenizer
     from efficacy.harness import load_probes, score_bank
 

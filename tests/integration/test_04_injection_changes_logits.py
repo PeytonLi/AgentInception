@@ -14,7 +14,7 @@ pytest.importorskip("torch", reason="torch required for inference engine")
 
 import torch
 
-from ghost_shared import bank_io
+from agentinception_shared import bank_io
 
 pytestmark = pytest.mark.gpu
 

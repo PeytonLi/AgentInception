@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "inference-engine"
 version = "0.1.0"
-description = "GhostBrowser OS inference engine (A1): Llama-3.1-8B + MI attention at layers [8,12,16,20], FastAPI step API + WS event hub."
+description = "AgentInception inference engine (A1): Llama-3.1-8B + MI attention at layers [8,12,16,20], FastAPI step API + WS event hub."
 requires-python = ">=3.10"
 dependencies = [
     "transformers==4.46.*",        # custom attention is version-sensitive; pinned per CONTRACTS §1

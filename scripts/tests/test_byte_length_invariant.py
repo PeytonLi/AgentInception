@@ -18,8 +18,8 @@ from pathlib import Path
 
 import pytest
 
-from ghost_shared import bank_io
-from ghost_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS
+from agentinception_shared import bank_io
+from agentinception_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_BANKS_DIR = REPO_ROOT / "banks"

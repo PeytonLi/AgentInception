@@ -7,8 +7,8 @@ import logging
 import numpy as np
 import pytest
 import torch
-from ghost_shared import bank_io
-from ghost_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS
+from agentinception_shared import bank_io
+from agentinception_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS
 
 from inference_engine.bank_registry import BankRegistry
 

@@ -21,8 +21,7 @@ import os
 from typing import Sequence
 
 import numpy as np
-
-from ghost_shared.constants import MODEL_ID, SELECTED_LAYERS
+from agentinception_shared.constants import MODEL_ID, SELECTED_LAYERS
 
 # Steering wrapper around the summary (CONTRACTS.md isn't picky about exact
 # wording; the brief mandates this phrasing).
@@ -76,9 +75,7 @@ def load_model_and_tokenizer(model_id: str = MODEL_ID, *, dtype: str = "bfloat16
     torch_dtype = getattr(torch, dtype) if isinstance(dtype, str) else dtype
     device_map = "auto" if torch.cuda.is_available() else None
 
-    tok = AutoTokenizer.from_pretrained(
-        model_id, token=os.environ.get("HF_TOKEN")
-    )
+    tok = AutoTokenizer.from_pretrained(model_id, token=os.environ.get("HF_TOKEN"))
     if tok.pad_token_id is None:
         tok.pad_token_id = tok.eos_token_id
 
@@ -111,7 +108,9 @@ def encode_summary(
     """
     import torch  # type: ignore
 
-    layers = list(selected_layers) if selected_layers is not None else list(SELECTED_LAYERS)
+    layers = (
+        list(selected_layers) if selected_layers is not None else list(SELECTED_LAYERS)
+    )
     if not layers:
         raise ValueError("selected_layers must be non-empty")
 
@@ -121,9 +120,7 @@ def encode_summary(
     offsets = enc["offset_mapping"][0].tolist()
     kept = kept_summary_positions(prompt, offsets, summary_text)
     if not kept:
-        raise RuntimeError(
-            "no kept summary positions — tokenizer / template mismatch"
-        )
+        raise RuntimeError("no kept summary positions — tokenizer / template mismatch")
 
     device = next(model.parameters()).device
     input_ids = input_ids.to(device)
@@ -139,7 +136,9 @@ def encode_summary(
     hidden_states = out.hidden_states  # tuple length num_layers + 1
     cfg = model.config
     n_kv = cfg.num_key_value_heads
-    head_dim = getattr(cfg, "head_dim", None) or (cfg.hidden_size // cfg.num_attention_heads)
+    head_dim = getattr(cfg, "head_dim", None) or (
+        cfg.hidden_size // cfg.num_attention_heads
+    )
 
     kept_idx = torch.as_tensor(kept, dtype=torch.long, device=device)
 

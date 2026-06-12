@@ -66,7 +66,7 @@ export function TokenComparator({
       ? history.map((p) => ({
           step: p.step,
           "Standard prompting": p.cumBaseline,
-          "GhostBrowser MI": p.cumVisible,
+          "AgentInception MI": p.cumVisible,
         }))
       : [];
 
@@ -153,7 +153,7 @@ export function TokenComparator({
             />
             <Line
               type="monotone"
-              dataKey="GhostBrowser MI"
+              dataKey="AgentInception MI"
               stroke="#38e8c8"
               strokeWidth={3}
               dot={false}

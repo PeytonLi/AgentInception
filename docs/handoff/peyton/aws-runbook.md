@@ -65,7 +65,7 @@ tail -f ~/hf_download.log
 ## 4. Clone the repo + install
 
 ```bash
-git clone <repo-url> ghostbrowser-os && cd ghostbrowser-os
+git clone <repo-url> agentinception && cd agentinception
 
 # Node toolchain (for the web-console / turbo, if running here)
 corepack enable && corepack prepare pnpm@10.30.3 --activate
@@ -93,7 +93,7 @@ Bring it up + apply schema (idempotent):
 ```bash
 export CLICKHOUSE_URL=http://localhost:8123
 bash scripts/ch_init.sh
-# -> SHOW TABLES FROM ghostbrowser lists: agent_steps, latent_memory_banks
+# -> SHOW TABLES FROM agentinception lists: agent_steps, latent_memory_banks
 ```
 
 Load the compiled banks (Rahul scp's `banks/*.bin` + `manifest.json` over):

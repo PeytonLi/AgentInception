@@ -32,8 +32,8 @@ from urllib.request import Request, urlopen
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "packages" / "shared-py"))
 
-from ghost_shared import bank_io  # noqa: E402
-from ghost_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS  # noqa: E402
+from agentinception_shared import bank_io  # noqa: E402
+from agentinception_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS  # noqa: E402
 
 REQUIRED_PAGE_KEYS = {"hn:front", "hn:item", "popup:demo"}
 F32_BYTES = 4

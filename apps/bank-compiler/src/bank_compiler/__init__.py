@@ -9,7 +9,7 @@ Pipeline (paper §3.2, Eq. 6):
     Page-structure summary
         |  encoder.encode_summary  (Llama forward pass, no RoPE)
     {layer -> (K, V)} canonical pre-RoPE banks
-        |  ghost_shared.bank_io.save_bank
+        |  agentinception_shared.bank_io.save_bank
     banks/<page_key>__L*.bin + manifest.json
 """
 

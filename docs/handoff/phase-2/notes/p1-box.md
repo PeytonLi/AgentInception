@@ -21,8 +21,8 @@ WS for the console: `NEXT_PUBLIC_INFERENCE_WS=ws://<ip>:8000/ws/events`.
 
 | Thing | Path |
 |---|---|
-| Repo | `~/ghostbrowser-os` |
-| Python venv | `~/ghostbrowser-os/.venv` |
+| Repo | `~/agentinception` |
+| Python venv | `~/agentinception/.venv` |
 | HF model cache | `~/.cache/huggingface/hub` (survives Stop; on the 200 GB EBS root) |
 | ClickHouse data | Docker named volume from `infra/docker-compose.yml` (survives Stop) |
 | HF download log | `~/hf_download.log` |
@@ -31,7 +31,7 @@ WS for the console: `NEXT_PUBLIC_INFERENCE_WS=ws://<ip>:8000/ws/events`.
 
 ```bash
 ssh -i <key>.pem ubuntu@<ip>
-cd ~/ghostbrowser-os
+cd ~/agentinception
 
 # 0. sanity: GPU visible
 nvidia-smi
@@ -80,7 +80,7 @@ ClickHouse was unreachable and the manifest fallback found nothing - re-run step
 ## Run the GPU smoke test on the box
 
 ```bash
-cd ~/ghostbrowser-os/apps/inference-engine
+cd ~/agentinception/apps/inference-engine
 pip install -e .[dev]
 HF_TOKEN=$HF_TOKEN pytest tests/test_gpu_boot.py -m gpu -s
 # off-GPU this same test is collected and skipped, so CI stays green.

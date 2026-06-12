@@ -1,4 +1,4 @@
-"""ghost_shared — the single source of shared contract code (CONTRACTS.md).
+"""agentinception_shared — the single source of shared contract code (CONTRACTS.md).
 
 Exposes page_key(), bank (de)serialization, the structural DOM hash, project
 constants, and the ClickHouse storage client. Every Python app imports from
@@ -21,6 +21,7 @@ from .bank_io import (
 )
 from .constants import (
     BANK_DTYPE,
+    DEEPSEEK_MODEL,
     HAIKU_MODEL,
     HEAD_DIM,
     HIDDEN_SIZE,
@@ -61,6 +62,7 @@ __all__ = [
     "BANK_DTYPE",
     "SUMMARY_WORDS",
     "HAIKU_MODEL",
+    "DEEPSEEK_MODEL",
 ]
 
 __version__ = "0.1.0"

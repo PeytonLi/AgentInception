@@ -8,7 +8,7 @@ Marked @pytest.mark.slow because it needs a live ClickHouse.
 from __future__ import annotations
 import numpy as np
 import pytest
-from ghost_shared import bank_io, storage
+from agentinception_shared import bank_io, storage
 
 pytestmark = pytest.mark.slow
 

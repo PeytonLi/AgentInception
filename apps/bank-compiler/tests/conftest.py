@@ -1,4 +1,4 @@
-"""Make bank_compiler and ghost_shared importable without editable installs."""
+"""Make bank_compiler and agentinception_shared importable without editable installs."""
 
 from __future__ import annotations
 

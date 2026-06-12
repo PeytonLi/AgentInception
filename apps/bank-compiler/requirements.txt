@@ -1,8 +1,9 @@
-# Bank compiler (B1): DOM -> Haiku summary -> Llama forward pass -> pre-RoPE banks.
+# Bank compiler (B1): DOM -> summary -> Llama forward pass -> pre-RoPE banks.
+# Summarizer: either anthropic (Haiku) or openai (DeepSeek via OpenAI-compat).
 transformers==4.46.*
 torch
 accelerate
-anthropic
+openai>=1.0
 playwright
 beautifulsoup4
 numpy>=1.24

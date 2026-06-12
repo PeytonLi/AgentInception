@@ -36,8 +36,8 @@ python -m bank_compiler validate banks/
 
 ### 3. Upload to ClickHouse — `scripts/upload_banks.py`
 
-- Reads `banks/manifest.json`, loads each `.bin` via `shared-py.bank_io`, inserts into `ghostbrowser.latent_memory_banks` per CONTRACTS §5. Idempotent (delete-then-insert by `page_key`).
-- Run it on the EC2 box after `scp -r banks/ ec2:...`. Verify with `SELECT page_key, layer_id, num_slots, length(k_bank) FROM ghostbrowser.latent_memory_banks` — `length(k_bank)` must equal `8 * num_slots * 128 * 4`.
+- Reads `banks/manifest.json`, loads each `.bin` via `shared-py.bank_io`, inserts into `agentinception.latent_memory_banks` per CONTRACTS §5. Idempotent (delete-then-insert by `page_key`).
+- Run it on the EC2 box after `scp -r banks/ ec2:...`. Verify with `SELECT page_key, layer_id, num_slots, length(k_bank) FROM agentinception.latent_memory_banks` — `length(k_bank)` must equal `8 * num_slots * 128 * 4`.
 
 ### 4. Shape validation script — `scripts/validate_banks_against_engine.py`
 

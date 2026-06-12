@@ -7,8 +7,8 @@ import os
 import sys
 from pathlib import Path
 
-from ghost_shared import bank_io
-from ghost_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS
+from agentinception_shared import bank_io
+from agentinception_shared.constants import HEAD_DIM, NUM_KV_HEADS, SELECTED_LAYERS
 
 from .compiler import CompileOptions, run_compile
 
@@ -114,7 +114,9 @@ def validate_dir(banks_dir: str) -> int:
             "before relying on them in a demo."
         )
 
-    print(f"[validate] OK — {len(banks)} bank(s), {len(expected_layers)} layer(s) each, manifest at {manifest_path}")
+    print(
+        f"[validate] OK — {len(banks)} bank(s), {len(expected_layers)} layer(s) each, manifest at {manifest_path}"
+    )
     return 0
 
 
@@ -136,7 +138,11 @@ def build_parser() -> argparse.ArgumentParser:
     src = c.add_mutually_exclusive_group(required=True)
     src.add_argument("--url", help="Public URL to load via Playwright")
     src.add_argument("--html", help="Local HTML file path")
-    c.add_argument("--page-key", required=True, help="One of hn:front | hn:item | popup:demo | unknown")
+    c.add_argument(
+        "--page-key",
+        required=True,
+        help="One of hn:front | hn:item | popup:demo | unknown",
+    )
     c.add_argument("--out", default="banks/", help="Output directory (default: banks/)")
     c.add_argument(
         "--layers",

@@ -155,7 +155,7 @@ test("renders a full recorded live run and captures a demo screenshot", async ({
 
   // Two diverging series are charted.
   await expect(page.getByText("Standard prompting")).toBeVisible();
-  await expect(page.getByText("GhostBrowser MI")).toBeVisible();
+  await expect(page.getByText("AgentInception MI")).toBeVisible();
 
   // Wait for the run to complete so the screenshot shows a fully populated state.
   await expect(page.getByText("Task complete")).toBeVisible({ timeout: 12000 });

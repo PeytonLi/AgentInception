@@ -68,7 +68,7 @@ const FRONT = SHELL(
     story(
       3,
       "The hidden cost of stuffing the DOM into every agent step",
-      "ghostbrowser.dev",
+      "agentinception.dev",
       311,
       "peyton",
       98,
@@ -154,7 +154,7 @@ const POPUP = SHELL(
     story(
       3,
       "The hidden cost of stuffing the DOM into every agent step",
-      "ghostbrowser.dev",
+      "agentinception.dev",
       311,
       "peyton",
       98,

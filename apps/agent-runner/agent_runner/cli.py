@@ -36,7 +36,7 @@ DEFAULT_TASK = (
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="agent_runner",
-        description="GhostBrowser OS agent runner (baseline | mi).",
+        description="AgentInception agent runner (baseline | mi).",
     )
     p.add_argument("--mode", choices=["baseline", "mi"], required=True)
     p.add_argument("--task", default=DEFAULT_TASK)

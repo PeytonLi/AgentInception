@@ -31,7 +31,7 @@ export function Header({ sessionId, mode, status, step }: HeaderProps) {
         </div>
         <div>
           <h1 className="text-sm font-bold tracking-[0.2em] text-ink">
-            GHOSTBROWSER<span className="text-ghost"> OS</span>
+            AGENTINCEPTION<span className="text-ghost"> OS</span>
           </h1>
           <p className="text-[10px] tracking-wider text-ink-dim">
             MEMORY INCEPTION · LATENT KV INJECTION

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# GhostBrowser OS — bring up ClickHouse and apply the schema. Idempotent.
+# AgentInception — bring up ClickHouse and apply the schema. Idempotent.
 # Usage: scripts/ch_init.sh
 set -euo pipefail
 
@@ -30,6 +30,6 @@ docker compose -f "$INFRA_DIR/docker-compose.yml" exec -T clickhouse \
 
 echo "==> Verifying tables exist"
 docker compose -f "$INFRA_DIR/docker-compose.yml" exec -T clickhouse \
-  clickhouse-client --query "SHOW TABLES FROM ghostbrowser"
+  clickhouse-client --query "SHOW TABLES FROM agentinception"
 
 echo "==> ClickHouse ready. CLICKHOUSE_URL=$CH_HTTP"

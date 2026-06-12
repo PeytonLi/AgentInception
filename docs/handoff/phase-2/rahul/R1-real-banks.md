@@ -3,7 +3,7 @@
 **Owner:** Rahul  **Branch:** `phase2/r1-real-banks`  **Worktree:** `.claude/worktrees/phase2-r1`
 **Reads first:** `docs/handoff/phase-2/README.md`, `CONTRACTS.md` (s3, s4, s5),
 `apps/bank-compiler/src/bank_compiler/{compiler.py,encoder.py,summarizer.py,dom_extract.py,cli.py}`,
-`packages/shared-py/ghost_shared/bank_io.py`, `scripts/{build_demo_banks.py,upload_banks.py,validate_banks_against_engine.py}`,
+`packages/shared-py/agentinception_shared/bank_io.py`, `scripts/{build_demo_banks.py,upload_banks.py,validate_banks_against_engine.py}`,
 `banks/manifest.json`.
 **Depends on:** P1 (GPU box + model cache). **Unblocks:** P2 (H+4 shape sync), P3, P5.
 **This is the single highest-value task in Phase 2.** The demo banks today are random
