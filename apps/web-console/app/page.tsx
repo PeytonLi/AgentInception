@@ -34,31 +34,33 @@ export default function Dashboard() {
       )}
 
       <div className="flex min-h-0 flex-1 flex-col gap-2 p-2">
-        <div className="grid h-[55vh] flex-shrink-0 grid-cols-2 grid-rows-2 gap-2">
+        <div className="grid h-[55vh] flex-shrink-0 grid-cols-2 gap-2">
           <ViewportPanel
             frame={state.latestFrame}
             popupFlashSeq={state.popupFlashSeq}
             activePageKey={state.activePageKey}
           />
-          <TokenComparator
-            history={state.metricHistory}
-            cumVisible={state.cumVisible}
-            cumBaseline={state.cumBaseline}
-            kvSavingsRatio={state.kvSavingsRatio}
-          />
-          <LayerInjectionGraph
-            litLayers={state.litLayers}
-            injectionActive={state.injectionActive}
-            numSlots={state.numSlots}
-            activePageKey={state.activePageKey}
-          />
-          <LogsMathPanel
-            logs={state.logs}
-            kvSavingsRatio={state.kvSavingsRatio}
-            injectionActive={state.injectionActive}
-            numSlots={state.numSlots}
-            domTokenCount={state.domTokenCount}
-          />
+          <div className="flex min-h-0 flex-col gap-2">
+            <TokenComparator
+              history={state.metricHistory}
+              cumVisible={state.cumVisible}
+              cumBaseline={state.cumBaseline}
+              kvSavingsRatio={state.kvSavingsRatio}
+            />
+            <LayerInjectionGraph
+              litLayers={state.litLayers}
+              injectionActive={state.injectionActive}
+              numSlots={state.numSlots}
+              activePageKey={state.activePageKey}
+            />
+            <LogsMathPanel
+              logs={state.logs}
+              kvSavingsRatio={state.kvSavingsRatio}
+              injectionActive={state.injectionActive}
+              numSlots={state.numSlots}
+              domTokenCount={state.domTokenCount}
+            />
+          </div>
         </div>
         <StepTimeline
           actions={state.actions}
