@@ -69,8 +69,12 @@ def _check_prerequisites() -> list[str]:
     issues: list[str] = []
     if not os.environ.get("HF_TOKEN"):
         issues.append("HF_TOKEN env var not set (required for gated Llama-3.1-8B)")
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        issues.append("ANTHROPIC_API_KEY env var not set (required for Haiku summaries)")
+    if not os.environ.get("ANTHROPIC_API_KEY") and not os.environ.get(
+        "DEEPSEEK_API_KEY"
+    ):
+        issues.append(
+            "Neither ANTHROPIC_API_KEY nor DEEPSEEK_API_KEY is set (required for DOM summaries)"
+        )
     try:
         import torch  # noqa: F401
     except ImportError:
@@ -82,7 +86,9 @@ def _check_prerequisites() -> list[str]:
     try:
         from bank_compiler.compiler import run_compile  # noqa: F401
     except ImportError:
-        issues.append("bank_compiler not importable (pip install -e apps/bank-compiler)")
+        issues.append(
+            "bank_compiler not importable (pip install -e apps/bank-compiler)"
+        )
     return issues
 
 
@@ -91,14 +97,18 @@ def _capture_live_hn(snapshot_dir: Path) -> None:
     capture_script = REPO_ROOT / "scripts" / "capture_dom.py"
     if capture_script.exists():
         import subprocess
+
         print("[capture] Running capture_dom.py for fresh HN snapshots...")
         subprocess.run(
             [sys.executable, str(capture_script), "--out", str(snapshot_dir)],
             check=True,
         )
     else:
-        print("[capture] WARNING: scripts/capture_dom.py not found. "
-              "Using existing snapshots if available.", file=sys.stderr)
+        print(
+            "[capture] WARNING: scripts/capture_dom.py not found. "
+            "Using existing snapshots if available.",
+            file=sys.stderr,
+        )
 
 
 def compile_all(
@@ -200,7 +210,8 @@ def main() -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--out", default="banks",
+        "--out",
+        default="banks",
         help="Output directory for .bin files + manifest (default: banks/)",
     )
     parser.add_argument(
@@ -214,19 +225,20 @@ def main() -> int:
         "--live",
         action="store_true",
         help="Capture fresh HN pages via Playwright before compiling "
-             "(requires playwright install chromium).",
+        "(requires playwright install chromium).",
     )
     args = parser.parse_args()
 
     # Check prerequisites.
     issues = _check_prerequisites()
     if issues:
-        print("Cannot compile real banks — prerequisites missing:",
-              file=sys.stderr)
+        print("Cannot compile real banks — prerequisites missing:", file=sys.stderr)
         for issue in issues:
             print(f"  ✗ {issue}", file=sys.stderr)
-        print("\nSee docs/handoff/phase-2/rahul/R1-real-banks.md for setup.",
-              file=sys.stderr)
+        print(
+            "\nSee docs/handoff/phase-2/rahul/R1-real-banks.md for setup.",
+            file=sys.stderr,
+        )
         return 1
 
     out_dir = Path(args.out)
