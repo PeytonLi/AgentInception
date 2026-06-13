@@ -34,7 +34,7 @@ export default function Dashboard() {
       )}
 
       <div className="flex min-h-0 flex-1 flex-col gap-2 p-2">
-        <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-2">
+        <div className="grid h-[55vh] flex-shrink-0 grid-cols-2 grid-rows-2 gap-2">
           <ViewportPanel
             frame={state.latestFrame}
             popupFlashSeq={state.popupFlashSeq}

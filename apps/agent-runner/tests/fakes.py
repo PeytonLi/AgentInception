@@ -52,6 +52,9 @@ class FakePageDriver:
         self._modals.discard(self._url)
         self.dismissed.add(self._url)
 
+    async def settle(self) -> None:
+        pass
+
     async def screenshot_jpeg(self, quality: int = 50) -> bytes:
         self.screenshots += 1
         return b"\xff\xd8\xff\xe0fakejpeg"
