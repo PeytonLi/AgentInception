@@ -29,6 +29,9 @@ class Settings:
     port: int
     hf_token: str | None
     attn_implementation: str = ATTN_IMPLEMENTATION
+    langfuse_public_key: str | None = None
+    langfuse_secret_key: str | None = None
+    langfuse_host: str | None = None
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -41,4 +44,7 @@ class Settings:
             attn_implementation=os.environ.get(
                 "ATTN_IMPLEMENTATION", ATTN_IMPLEMENTATION
             ),
+            langfuse_public_key=os.environ.get("LANGFUSE_PUBLIC_KEY"),
+            langfuse_secret_key=os.environ.get("LANGFUSE_SECRET_KEY"),
+            langfuse_host=os.environ.get("LANGFUSE_HOST"),
         )

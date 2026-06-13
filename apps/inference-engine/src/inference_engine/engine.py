@@ -50,6 +50,8 @@ class GenerationBackend(Protocol):
 
     def count_prompt_tokens(self, messages: list[dict]) -> int: ...
 
+    def count_tokens(self, text: str) -> int: ...
+
     def apply_banks(self, layer_banks: Optional[dict]) -> list[int]: ...
 
 
@@ -185,6 +187,9 @@ class LlamaBackend:
         return len(
             self.tokenizer.apply_chat_template(messages, add_generation_prompt=True)
         )
+
+    def count_tokens(self, text: str) -> int:
+        return len(self.tokenizer.encode(text))
 
     def apply_banks(self, layer_banks: Optional[dict]) -> list[int]:
         if not layer_banks:

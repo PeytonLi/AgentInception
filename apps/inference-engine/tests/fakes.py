@@ -21,6 +21,9 @@ class FakeBackend:
     def count_prompt_tokens(self, messages: list[dict]) -> int:
         return len(self._flat(messages).split())
 
+    def count_tokens(self, text: str) -> int:
+        return len(text.split())
+
     def apply_banks(self, layer_banks) -> list[int]:
         self.applied_banks.append(layer_banks)
         return sorted(layer_banks.keys()) if layer_banks else []

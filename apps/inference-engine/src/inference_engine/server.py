@@ -16,6 +16,7 @@ from .config import Settings
 from .engine import GenerationBackend
 from .schemas import FramePayload, StepRequest, StepResponse
 from .service import StepService
+from .tracing import TraceFactory
 from .ws_hub import EventHub
 
 logger = logging.getLogger("inference_engine.server")
@@ -28,10 +29,11 @@ def create_app(
 ) -> FastAPI:
     settings = settings or Settings.from_env()
     hub = EventHub()
+    trace_factory = TraceFactory(settings)
     state: dict = {"service": None, "registry": registry, "backend": backend}
 
     if backend is not None and registry is not None:
-        state["service"] = StepService(backend, registry, hub)
+        state["service"] = StepService(backend, registry, hub, trace_factory)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -43,7 +45,7 @@ def create_app(
                 BankRegistry.load, settings.clickhouse_url, settings.banks_dir
             )
             state["backend"] = await run_in_threadpool(LlamaBackend.load, settings)
-            state["service"] = StepService(state["backend"], state["registry"], hub)
+            state["service"] = StepService(state["backend"], state["registry"], hub, trace_factory)
             logger.info("startup complete: banks=%s", state["registry"].page_keys)
         yield
 
@@ -65,7 +67,9 @@ def create_app(
     @app.post("/internal/frame")
     async def frame(payload: FramePayload) -> dict:
         # pushed by agent-runner; engine just rebroadcasts on the WS (§7)
-        await hub.broadcast({"type": "viewport_frame", "jpeg_base64": payload.jpeg_base64})
+        await hub.broadcast(
+            {"type": "viewport_frame", "jpeg_base64": payload.jpeg_base64}
+        )
         return {"ok": True}
 
     @app.websocket("/ws/events")
