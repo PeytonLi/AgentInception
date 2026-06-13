@@ -15,10 +15,10 @@ Last updated: 2026-06-12  (P5 integration pass)
 | 7 | Runner against engine | GREEN (2/2) with --run-slow |
 | 8 | Popup chaos flow | GREEN (2/2) with --run-gpu |
 | 9 | Token metrics honesty | GREEN (2/2) |
-| 10 | Console renders live run | GREEN (4/5) with --run-slow |
+| 10 | Console renders live run | GREEN (5/5) with --run-slow |
 | 11 | Baseline mode e2e | GREEN (2/2) with --run-gpu |
 
-**Summary:** 27 passed, 3 skipped (test_04 x2 CUDA gated, 1 vitest requires pnpm).
+**Summary:** 28 passed, 3 skipped (test_04 x2 CUDA gated, test_10 vitest requires pnpm on PATH).
 All FakeBackend/FakePageDriver tests exercise the full A1-A3-A4 contract
 paths on CPU; the only genuinely GPU-gated verification is test_04.
 
@@ -37,6 +37,13 @@ pytest tests/integration/ -v --run-gpu --run-slow
 
 ## P5 integration fixes applied
 
+- **test_10 vitest subprocess fix.** Added `shutil.which("pnpm")` guard;
+  the test now cleanly skips when pnpm is not on PATH instead of crashing.
+- **StepTimeline wired.** The unused `StepTimeline` component is now rendered
+  as a full-width row below the 2×2 dashboard grid (page.tsx).
+- **verify_real_banks.py added.** TDD acceptance script that runs all three
+  real-bank checks (injection KL, byte contract, efficacy threshold) with
+  color-coded PASS/FAIL output.
 - **Fakes module collision (root cause).** Both apps' tests/fakes.py modules
   collided in sys.modules. Added conftest.import_app_fakes() with namespaced
   modules; tests 3,5,6,7,8,9,11 updated.

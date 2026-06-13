@@ -17,6 +17,7 @@ To run the actual rendering tests:
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -87,6 +88,8 @@ def test_run_vitest_if_available(repo_root):
     vitest = _CONSOLE / "node_modules" / ".bin" / "vitest"
     if not vitest.exists() and not (vitest.with_suffix(".cmd")).exists():
         pytest.skip("vitest not found in node_modules")
+    if not shutil.which("pnpm"):
+        pytest.skip("pnpm not found on PATH")
     result = subprocess.run(
         ["pnpm", "test"],
         cwd=str(_CONSOLE),
