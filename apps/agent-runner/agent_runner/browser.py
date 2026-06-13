@@ -35,6 +35,8 @@ class PageDriver(Protocol):
 
     async def dismiss_modal(self, selector: str, timeout_ms: int = 5000) -> None: ...
 
+    async def settle(self) -> None: ...
+
     async def screenshot_jpeg(self, quality: int = 50) -> bytes: ...
 
 
@@ -62,7 +64,7 @@ class PlaywrightPageDriver:
                 await self._page.goto(
                     url, wait_until="domcontentloaded", timeout=NAV_TIMEOUT_MS
                 )
-                await self._settle()
+                await self.settle()
                 return
             except Exception as exc:  # navigation timeout / transient net error
                 last_exc = exc
@@ -97,7 +99,7 @@ class PlaywrightPageDriver:
                 except Exception:  # scroll is best-effort
                     pass
                 await self._page.click(selector, timeout=timeout_ms)
-                await self._settle()
+                await self.settle()
                 return
             except Exception as exc:
                 last_exc = exc
@@ -113,9 +115,23 @@ class PlaywrightPageDriver:
         raise last_exc
 
     async def dismiss_modal(self, selector: str, timeout_ms: int = 5000) -> None:
+        # Known popup selectors tried first (model often guesses wrong).
+        known = [
+            "#accept-cookies",
+            "#reject-cookies",
+            "[data-testid=cookie-accept]",
+            "[data-testid=cookie-reject]",
+            ".cookie-buttons button",
+        ]
+        for sel in known:
+            try:
+                await self.click(sel, timeout_ms=min(timeout_ms, 2000))
+                return
+            except Exception:
+                pass
         await self.click(selector, timeout_ms=timeout_ms)
 
-    async def _settle(self) -> None:
+    async def settle(self) -> None:
         """Best-effort wait for the network to go idle after a navigation."""
         try:
             await self._page.wait_for_load_state("networkidle", timeout=3000)
