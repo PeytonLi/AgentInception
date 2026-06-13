@@ -45,10 +45,13 @@ def page_key(url: str) -> str:
     # --- Popup fixture page ----------------------------------------------
     # localhost (any port) with "popup" in the path, OR a file:// URL whose
     # path references the popup fixture.
-    if "popup" in path.lower():
-        if scheme == "file":
-            return "popup:demo"
-        if host in ("localhost", "127.0.0.1", "0.0.0.0"):
-            return "popup:demo"
+    # localhost (any port) that serves the popup fixture. The path is
+    # irrelevant — the fixture lives at the server root.
+    if host in ("localhost", "127.0.0.1", "0.0.0.0"):
+        return "popup:demo"
+
+    # A file:// URL whose path references the popup fixture.
+    if scheme == "file" and "popup" in path.lower():
+        return "popup:demo"
 
     return "unknown"
