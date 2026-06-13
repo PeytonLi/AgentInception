@@ -1,8 +1,8 @@
 "use client";
 
 import { Header } from "@/components/Header";
-import { LayerInjectionGraph } from "@/components/LayerInjectionGraph";
 import { LogsMathPanel } from "@/components/LogsMathPanel";
+import { StepTimeline } from "@/components/StepTimeline";
 import { TokenComparator } from "@/components/TokenComparator";
 import { ViewportPanel } from "@/components/ViewportPanel";
 import { useEventFeed } from "@/lib/useEventFeed";
@@ -44,10 +44,10 @@ export default function Dashboard() {
           cumBaseline={state.cumBaseline}
           kvSavingsRatio={state.kvSavingsRatio}
         />
-        <LayerInjectionGraph
-          litLayers={state.litLayers}
-          injectionActive={state.injectionActive}
-          numSlots={state.numSlots}
+        <StepTimeline
+          actions={state.actions}
+          metricHistory={state.metricHistory}
+          bankUsed={state.injectionActive}
           activePageKey={state.activePageKey}
         />
         <LogsMathPanel

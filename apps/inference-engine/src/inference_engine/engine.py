@@ -17,14 +17,14 @@ from .schemas import ALLOWED_ACTIONS
 logger = logging.getLogger("inference_engine.engine")
 
 SYSTEM_PROMPT = """You are AgentInception, a web agent driving a real browser to complete the user's task.
-Respond with EXACTLY ONE JSON object and no prose. Allowed actions:
-{"action": "goto", "url": "<absolute url>"}
-{"action": "click", "selector": "<css selector>"}
-{"action": "dismiss_modal", "selector": "<css selector>"}
-{"action": "extract", "result": {<data extracted from the page>}}
-{"action": "done", "result": {<the final answer to the task>}}"""
+Include a short "thought" explaining your reasoning, then the action. Respond with EXACTLY ONE JSON object and no prose. Allowed actions:
+{"thought": "<one sentence reasoning>", "action": "goto", "url": "<absolute url>"}
+{"thought": "<one sentence reasoning>", "action": "click", "selector": "<css selector>"}
+{"thought": "<one sentence reasoning>", "action": "dismiss_modal", "selector": "<css selector>"}
+{"thought": "<one sentence reasoning>", "action": "extract", "result": {<data extracted from the page>}}
+{"thought": "<one sentence reasoning>", "action": "done", "result": {<the final answer to the task>}}"""
 
-RETRY_SUFFIX = "Respond with only the JSON object."
+RETRY_SUFFIX = "Respond with only the JSON object (include a thought field)."
 
 
 def cuda_memory_summary() -> str:
