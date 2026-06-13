@@ -22,8 +22,8 @@ from typing import Any
 
 from .errors import ActionParseError
 
-VALID_ACTIONS = {"goto", "click", "dismiss_modal", "extract", "done"}
-TERMINAL_ACTIONS = {"extract", "done"}
+VALID_ACTIONS = {"goto", "click", "dismiss_modal", "done"}
+TERMINAL_ACTIONS = {"done"}
 
 
 @dataclass

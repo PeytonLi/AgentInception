@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, model_validator
 
 Mode = Literal["baseline", "mi"]
 
-ALLOWED_ACTIONS = {"goto", "click", "dismiss_modal", "extract", "done"}
+ALLOWED_ACTIONS = {"goto", "click", "dismiss_modal", "done"}
 
 
 class StepRequest(BaseModel):
@@ -16,7 +16,9 @@ class StepRequest(BaseModel):
     url: str
     page_key: str  # computed by agent-runner via shared page_key()
     dom_text: Optional[str] = None  # REQUIRED in baseline mode; null in mi mode
-    dom_token_count: int = Field(ge=0)  # full-DOM count the runner computes in both modes
+    dom_token_count: int = Field(
+        ge=0
+    )  # full-DOM count the runner computes in both modes
     history: list[str] = Field(default_factory=list)
     step: int
 
