@@ -11,16 +11,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
 
-from bs4 import BeautifulSoup, Comment
-
 from agentinception_shared.dom_hash import dom_structural_hash
+from bs4 import BeautifulSoup, Comment
 
 
 @dataclass(frozen=True)
 class DomExtract:
     url: str
-    html: str        # cleaned HTML (scripts/styles/comments removed)
-    text: str        # innerText-style visible text
+    html: str  # cleaned HTML (scripts/styles/comments removed)
+    text: str  # innerText-style visible text
     dom_structural_hash: str
 
 
@@ -90,9 +89,12 @@ def extract_from_url(url: str, *, timeout_ms: int = 30000) -> DomExtract:
 
 
 def load_dom(*, url: str | None = None, html: str | None = None) -> DomExtract:
-    """Unified entrypoint: one of url= or html= (a local file path)."""
-    if (url is None) == (html is None):
-        raise ValueError("Pass exactly one of url= or html= (local file path)")
+    """Unified entrypoint: one of url= or html= (a local file path).
+
+    When both are given, html= wins and url= is used only for domain metadata.
+    """
+    if url is None and html is None:
+        raise ValueError("Pass at least one of url= or html= (local file path)")
     if html is not None:
         return extract_from_html(html)
     assert url is not None

@@ -147,7 +147,7 @@ def compile_all(
                 page_key=pk,
                 out_dir=str(out_dir),
                 html=str(snapshot_path),
-                url=f"http://localhost:8080/popup-page/index.html",
+                url=spec["url"],
                 model=model,
                 tokenizer=tokenizer,
             )

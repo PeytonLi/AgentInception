@@ -48,8 +48,8 @@ def run_compile(opts: CompileOptions) -> dict[str, Any]:
     """Run the full pipeline and return the manifest entry that was written."""
     if not opts.page_key:
         raise ValueError("page_key is required")
-    if (opts.url is None) == (opts.html is None):
-        raise ValueError("Pass exactly one of url= or html=")
+    if opts.html is None and opts.url is None:
+        raise ValueError("Pass at least one of url= or html=")
     out_dir = opts.out_dir
     Path(out_dir).mkdir(parents=True, exist_ok=True)
 
